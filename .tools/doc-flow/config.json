@@ -1,5 +1,5 @@
 {
-  "knowledge_system": "obsidian_remote",
+  "knowledge_system": "local_mcp",
   "output_format": "markdown",
   "use_mcp": true,
   "detection_keywords": [
@@ -20,31 +20,18 @@
   },
   "auto_capture": true,
   "include_file_analysis": true,
+  "auto_process_via_mcp": true,
   "knowledge_system_config": {
-    "obsidian_remote": {
-      "mode": "remote",
-      "api_url": "https://obsidian.bp-flow.com",
-      "api_key": "hr-doc-flow-tDlZ2LmhhEgKOfOM",
+    "local_mcp": {
+      "mode": "local",
+      "api_url": "http://localhost:3000",
       "use_wikilinks": true,
       "avoid_hash_in_titles": true
     }
   },
-  "mcp_servers": {
-    "doc-flow": {
-      "enabled": true,
-      "command": "ssh",
-      "args": [
-        "-o", "StrictHostKeyChecking=no",
-        "n8nuser@167.172.171.117",
-        "cd /home/n8nuser/knowledge-ai && OBSIDIAN_API_URL=https://obsidian.bp-flow.com OBSIDIAN_API_KEY=hr-doc-flow-tDlZ2LmhhEgKOfOM node src/mcp/standalone-server.js"
-      ],
-      "description": "Remote Obsidian knowledge processing for doc-flow project",
-      "timeout": 30000
-    }
-  },
   "mcp_processing": {
     "auto_process_on_capture": true,
-    "preferred_server": "doc-flow",
+    "preferred_method": "claude_code",
     "fallback_to_manual": true,
     "batch_processing": true,
     "max_retries": 2
