@@ -1,0 +1,4 @@
+
+# Doc Flow - Hide internal tool files from Claude
+.tools/doc-flow/scripts/
+.tools/doc-flow/templates/

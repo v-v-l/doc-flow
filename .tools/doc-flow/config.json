@@ -1,0 +1,52 @@
+{
+  "knowledge_system": "obsidian_remote",
+  "output_format": "markdown",
+  "use_mcp": true,
+  "detection_keywords": [
+    "add", "new", "create", "implement", "feat",
+    "service", "controller", "component", "module", 
+    "integration", "api", "database", "auth", "mcp"
+  ],
+  "naming_conventions": {
+    "components": "PascalCase",
+    "modules": "kebab-case",
+    "systems": "Title Case"
+  },
+  "virtual_folders": {
+    "architecture": "architecture/",
+    "components": "architecture/components/",
+    "modules": "architecture/modules/",
+    "integrations": "architecture/integrations/"
+  },
+  "auto_capture": true,
+  "include_file_analysis": true,
+  "knowledge_system_config": {
+    "obsidian_remote": {
+      "mode": "remote",
+      "api_url": "https://obsidian.bp-flow.com",
+      "api_key": "hr-doc-flow-tDlZ2LmhhEgKOfOM",
+      "use_wikilinks": true,
+      "avoid_hash_in_titles": true
+    }
+  },
+  "mcp_servers": {
+    "doc-flow": {
+      "enabled": true,
+      "command": "ssh",
+      "args": [
+        "-o", "StrictHostKeyChecking=no",
+        "n8nuser@167.172.171.117",
+        "cd /home/n8nuser/knowledge-ai && OBSIDIAN_API_URL=https://obsidian.bp-flow.com OBSIDIAN_API_KEY=hr-doc-flow-tDlZ2LmhhEgKOfOM node src/mcp/standalone-server.js"
+      ],
+      "description": "Remote Obsidian knowledge processing for doc-flow project",
+      "timeout": 30000
+    }
+  },
+  "mcp_processing": {
+    "auto_process_on_capture": true,
+    "preferred_server": "doc-flow",
+    "fallback_to_manual": true,
+    "batch_processing": true,
+    "max_retries": 2
+  }
+}
