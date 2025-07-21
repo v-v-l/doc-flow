@@ -40,7 +40,15 @@
   },
   "knowledge_system_config": {
     "obsidian": {
-      "vault_path": "",
+      "mode": "local",
+      "vault_path": "/path/to/your/obsidian/vault",
+      "use_wikilinks": true,
+      "avoid_hash_in_titles": true
+    },
+    "obsidian_remote": {
+      "mode": "remote",
+      "api_url": "https://your-obsidian-api.example.com",
+      "api_key": "your-obsidian-api-key",
       "use_wikilinks": true,
       "avoid_hash_in_titles": true
     },

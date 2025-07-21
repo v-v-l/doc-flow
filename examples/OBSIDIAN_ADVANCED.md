@@ -246,8 +246,10 @@ Decision Level:   [[ADR-001 Authentication Choice]]
 
 ## 🚀 Getting Started with Obsidian Integration
 
-1. **Install Obsidian** and create vault
-2. **Configure vault-git-flow** with Obsidian settings  
+1. **Install Obsidian** and create vault (or setup remote API)
+2. **Configure doc-flow** with Obsidian settings:
+   - **Local vault**: Set `vault_path` in config
+   - **Remote API**: Set `api_url` and `api_key` in config
 3. **Start development** - automatic documentation begins
 4. **Use AI assistant** (Claude/ChatGPT) to process updates
 5. **Explore graph view** to visualize architecture

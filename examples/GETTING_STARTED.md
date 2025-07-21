@@ -14,10 +14,10 @@ This guide walks you through setting up architecture documentation for a new pro
 
 ```bash
 # Option A: Quick install (recommended)
-curl -sSL https://raw.githubusercontent.com/doc-flow/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/v-v-l/doc-flow/main/install.sh | bash
 
 # Option B: Manual install  
-git clone <repo-url> doc-flow-installer
+git clone https://github.com/v-v-l/doc-flow.git doc-flow-installer
 ./doc-flow-installer/install.sh
 ```
 
@@ -153,13 +153,43 @@ AI Assistant:
 ```
 
 ### Knowledge System Integration
+
+#### Local Obsidian Vault
 ```json
 {
   "knowledge_system_config": {
     "obsidian": {
+      "mode": "local",
       "vault_path": "/path/to/vault",
       "use_wikilinks": true,
       "avoid_hash_in_titles": true
+    }
+  }
+}
+```
+
+#### Remote Obsidian API
+```json
+{
+  "knowledge_system_config": {
+    "obsidian_remote": {
+      "mode": "remote", 
+      "api_url": "https://obsidian.your-domain.com",
+      "api_key": "your-obsidian-api-key",
+      "use_wikilinks": true,
+      "avoid_hash_in_titles": true
+    }
+  }
+}
+```
+
+#### Notion Integration
+```json
+{
+  "knowledge_system_config": {
+    "notion": {
+      "database_id": "your-notion-database-id",
+      "api_key": "your-notion-integration-token"
     }
   }
 }
@@ -220,5 +250,5 @@ git commit -m "implement PaymentService component - depends on stripe-sdk, used 
 
 **Need Help?**
 - 📖 [Full Documentation](../README.md)
-- 🐛 [Report Issues](https://github.com/doc-flow/issues)
-- 💬 [Community Discussions](https://github.com/doc-flow/discussions)
+- 🐛 [Report Issues](https://github.com/v-v-l/doc-flow/issues)
+- 💬 [Community Discussions](https://github.com/v-v-l/doc-flow/discussions)

@@ -25,7 +25,7 @@ Automatically capture and document your software architecture as you code. Works
 
 ```bash
 # 1. Quick install (minimal footprint)
-curl -sSL https://raw.githubusercontent.com/your-repo/doc-flow/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/v-v-l/doc-flow/main/install.sh | bash
 
 # 2. Start developing normally  
 git add auth-service.js
@@ -95,13 +95,13 @@ git commit -m "add PaymentService" # Auto-captured
 
 ### Option 1: Quick Install (Recommended)
 ```bash
-curl -sSL https://raw.githubusercontent.com/your-repo/doc-flow/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/v-v-l/doc-flow/main/install.sh | bash
 ```
 
 ### Option 2: Manual Setup
 ```bash
 # Clone the tool
-git clone <repo-url> .doc-flow
+git clone https://github.com/v-v-l/doc-flow.git .doc-flow
 
 # Run setup in your project
 ./.doc-flow/scripts/setup-hooks.sh
@@ -126,7 +126,7 @@ your-project/
 
 ## ⚙️ Configuration
 
-### Basic Configuration (`vault-config.json`)
+### Basic Configuration (`.tools/doc-flow/config.json`)
 ```json
 {
   "knowledge_system": "obsidian",
@@ -144,6 +144,75 @@ your-project/
     "architecture": "architecture/",
     "components": "architecture/components/",
     "modules": "architecture/modules/"
+  }
+}
+```
+
+### Knowledge System Configuration
+
+#### Obsidian (Local Vault)
+```json
+{
+  "knowledge_system": "obsidian",
+  "knowledge_system_config": {
+    "obsidian": {
+      "mode": "local",
+      "vault_path": "/path/to/your/obsidian/vault",
+      "use_wikilinks": true,
+      "avoid_hash_in_titles": true
+    }
+  }
+}
+```
+
+#### Obsidian (Remote API)
+For remote Obsidian API setups (like n8n integrations):
+```json
+{
+  "knowledge_system": "obsidian_remote",
+  "knowledge_system_config": {
+    "obsidian_remote": {
+      "mode": "remote",
+      "api_url": "https://obsidian.your-domain.com",
+      "api_key": "your-obsidian-api-key",
+      "use_wikilinks": true,
+      "avoid_hash_in_titles": true
+    }
+  }
+}
+```
+
+Environment variables for remote Obsidian:
+```bash
+export OBSIDIAN_API_URL="https://obsidian.your-domain.com"
+export OBSIDIAN_API_KEY="your-obsidian-api-key"
+```
+
+#### Notion
+```json
+{
+  "knowledge_system": "notion", 
+  "knowledge_system_config": {
+    "notion": {
+      "database_id": "your-notion-database-id",
+      "api_key": "your-notion-integration-token"
+    }
+  }
+}
+```
+
+#### Custom Knowledge Systems
+```json
+{
+  "knowledge_system": "custom",
+  "knowledge_system_config": {
+    "custom": {
+      "api_endpoint": "https://your-api.example.com",
+      "auth_token": "your-auth-token",
+      "custom_headers": {
+        "Content-Type": "application/json"
+      }
+    }
   }
 }
 ```
@@ -220,7 +289,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ### Development Setup
 ```bash
-git clone <repo-url>
+git clone https://github.com/v-v-l/doc-flow.git
 cd doc-flow
 ./scripts/dev-setup.sh
 ```
@@ -237,9 +306,9 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## 🙋 Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-repo/doc-flow/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-repo/doc-flow/discussions)
-- **Documentation**: [Wiki](https://github.com/your-repo/doc-flow/wiki)
+- **Issues**: [GitHub Issues](https://github.com/v-v-l/doc-flow/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/v-v-l/doc-flow/discussions)
+- **Documentation**: [Wiki](https://github.com/v-v-l/doc-flow/wiki)
 
 ---
 
