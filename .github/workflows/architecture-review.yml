@@ -120,7 +120,7 @@ jobs:
             const configs = '${{ steps.analyze.outputs.configs_count }}';
             const hasDocFlow = '${{ steps.docflow.outputs.doc_flow_present }}' === 'true';
             const hasPendingUpdates = '${{ steps.docflow.outputs.has_pending_updates }}' === 'true';
-            const detectedComponents = `${{ steps.detect.outputs.detected_components }}`;
+            const detectedComponents = '${{ steps.detect.outputs.detected_components }}';
             
             const impactEmoji = {
               'high': '🔴',
@@ -129,15 +129,15 @@ jobs:
             };
             
             let comment = '## 🏗️ Architecture Change Analysis\n\n';
-            comment += `**Impact Level**: ${impactEmoji[impactLevel]} ${impactLevel.toUpperCase()} (Score: ${complexity})\n\n`;
+            comment += '**Impact Level**: ' + impactEmoji[impactLevel] + ' ' + impactLevel.toUpperCase() + ' (Score: ' + complexity + ')\n\n';
             comment += '### Detected Changes\n```\n';
-            comment += `${detectedComponents}\n`;
+            comment += detectedComponents + '\n';
             comment += '```\n\n';
             comment += '### File Analysis\n';
-            comment += `- **Services**: ${services} files\n`;
-            comment += `- **Controllers**: ${controllers} files\n`;
-            comment += `- **Models**: ${models} files\n`;
-            comment += `- **Configurations**: ${configs} files\n\n`;
+            comment += '- **Services**: ' + services + ' files\n';
+            comment += '- **Controllers**: ' + controllers + ' files\n';
+            comment += '- **Models**: ' + models + ' files\n';
+            comment += '- **Configurations**: ' + configs + ' files\n\n';
             comment += '### Doc Flow Status\n';
             
             if (hasDocFlow && hasPendingUpdates) {
