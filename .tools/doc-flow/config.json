@@ -33,7 +33,6 @@
     "auto_process_on_capture": true,
     "preferred_method": "claude_code",
     "fallback_to_manual": true,
-    "batch_processing": true,
-    "max_retries": 2
+    "architecture_prompt_path": "docs/architecture-documentation-prompt.md"
   }
 }
