@@ -133,9 +133,9 @@ jobs:
 **Impact Level**: ${impactEmoji[impactLevel]} ${impactLevel.toUpperCase()} (Score: ${complexity})
 
 ### Detected Changes
-\`\`\`
+\\\`\\\`\\\`
 ${detectedComponents}
-\`\`\`
+\\\`\\\`\\\`
 
 ### File Analysis
 - **Services**: ${services} files
@@ -149,14 +149,14 @@ ${detectedComponents}
             if (hasDocFlow && hasPendingUpdates) {
               comment += `✅ **Doc Flow documentation present** - Architecture changes have been captured for processing.`;
             } else if (hasDocFlow && !hasPendingUpdates) {
-              comment += `⚠️ **Doc Flow present but no pending updates** - Please ensure architectural changes are captured in \`.tools/doc-flow/pending-updates.md\``;
+              comment += `⚠️ **Doc Flow present but no pending updates** - Please ensure architectural changes are captured in \\\`.tools/doc-flow/pending-updates.md\\\``;
             } else {
               comment += `❌ **No Doc Flow documentation** - Consider setting up Doc Flow to automatically document architectural changes:
               
-\`\`\`bash
+\\\`\\\`\\\`bash
 # Set up Doc Flow for automatic architecture documentation
 ./setup.sh
-\`\`\``;
+\\\`\\\`\\\``;
             }
             
             comment += `
