@@ -128,68 +128,49 @@ jobs:
               'low': '🟢'
             };
             
-            let comment = `## 🏗️ Architecture Change Analysis
-            
-**Impact Level**: ${impactEmoji[impactLevel]} ${impactLevel.toUpperCase()} (Score: ${complexity})
-
-### Detected Changes
-\\\`\\\`\\\`
-${detectedComponents}
-\\\`\\\`\\\`
-
-### File Analysis
-- **Services**: ${services} files
-- **Controllers**: ${controllers} files  
-- **Models**: ${models} files
-- **Configurations**: ${configs} files
-
-### Doc Flow Status
-`;
+            let comment = '## 🏗️ Architecture Change Analysis\n\n';
+            comment += `**Impact Level**: ${impactEmoji[impactLevel]} ${impactLevel.toUpperCase()} (Score: ${complexity})\n\n`;
+            comment += '### Detected Changes\n```\n';
+            comment += `${detectedComponents}\n`;
+            comment += '```\n\n';
+            comment += '### File Analysis\n';
+            comment += `- **Services**: ${services} files\n`;
+            comment += `- **Controllers**: ${controllers} files\n`;
+            comment += `- **Models**: ${models} files\n`;
+            comment += `- **Configurations**: ${configs} files\n\n`;
+            comment += '### Doc Flow Status\n';
             
             if (hasDocFlow && hasPendingUpdates) {
-              comment += `✅ **Doc Flow documentation present** - Architecture changes have been captured for processing.`;
+              comment += '✅ **Doc Flow documentation present** - Architecture changes have been captured for processing.';
             } else if (hasDocFlow && !hasPendingUpdates) {
-              comment += `⚠️ **Doc Flow present but no pending updates** - Please ensure architectural changes are captured in \\\`.tools/doc-flow/pending-updates.md\\\``;
+              comment += '⚠️ **Doc Flow present but no pending updates** - Please ensure architectural changes are captured in `.tools/doc-flow/pending-updates.md`';
             } else {
-              comment += `❌ **No Doc Flow documentation** - Consider setting up Doc Flow to automatically document architectural changes:
-              
-\\\`\\\`\\\`bash
-# Set up Doc Flow for automatic architecture documentation
-./setup.sh
-\\\`\\\`\\\``;
+              comment += '❌ **No Doc Flow documentation** - Consider setting up Doc Flow to automatically document architectural changes:\n\n';
+              comment += '```bash\n# Set up Doc Flow for automatic architecture documentation\n./setup.sh\n```';
             }
             
-            comment += `
-
-### Review Guidelines
-`;
+            comment += '\n\n### Review Guidelines\n';
             
             if (impactLevel === 'high') {
-              comment += `
-🔴 **High Impact Changes** - Please ensure:
-- [ ] Architecture documentation is complete and accurate
-- [ ] Component relationships are properly documented  
-- [ ] Integration points are clearly defined
-- [ ] Migration/deployment impact is considered
-- [ ] Team lead review is obtained`;
+              comment += '\n🔴 **High Impact Changes** - Please ensure:\n';
+              comment += '- [ ] Architecture documentation is complete and accurate\n';
+              comment += '- [ ] Component relationships are properly documented\n';
+              comment += '- [ ] Integration points are clearly defined\n';
+              comment += '- [ ] Migration/deployment impact is considered\n';
+              comment += '- [ ] Team lead review is obtained';
             } else if (impactLevel === 'medium') {
-              comment += `
-🟡 **Medium Impact Changes** - Please verify:
-- [ ] Component purpose and responsibilities are documented
-- [ ] Dependencies are clearly identified
-- [ ] API changes are documented
-- [ ] Architecture consistency is maintained`;
+              comment += '\n🟡 **Medium Impact Changes** - Please verify:\n';
+              comment += '- [ ] Component purpose and responsibilities are documented\n';
+              comment += '- [ ] Dependencies are clearly identified\n';
+              comment += '- [ ] API changes are documented\n';
+              comment += '- [ ] Architecture consistency is maintained';
             } else {
-              comment += `
-🟢 **Low Impact Changes** - Please confirm:
-- [ ] Component changes are documented
-- [ ] Basic architectural consistency is maintained`;
+              comment += '\n🟢 **Low Impact Changes** - Please confirm:\n';
+              comment += '- [ ] Component changes are documented\n';
+              comment += '- [ ] Basic architectural consistency is maintained';
             }
             
-            comment += `
-
----
-*This analysis was generated automatically by Doc Flow. For more information, see the [Architecture Documentation Guide](docs/OPEN-SOURCE-WORKFLOW.md).*`;
+            comment += '\n\n---\n*This analysis was generated automatically by Doc Flow. For more information, see the [Architecture Documentation Guide](docs/OPEN-SOURCE-WORKFLOW.md).*';
             
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
