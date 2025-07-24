@@ -211,12 +211,27 @@ check_required_files() {
     
     # Check templates based on config  
     OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "doc-flow-config.json" | cut -d'"' -f4)
-    TEMPLATE_FILE="$SCRIPT_DIR/templates/${OUTPUT_MODE}-instructions.md"
     
-    if [ ! -f "$TEMPLATE_FILE" ]; then
-        print_error "Required template not found: $TEMPLATE_FILE"
-        echo "Available output modes: mcp, local"
-        exit 1
+    if [ "$OUTPUT_MODE" = "both" ]; then
+        # Both mode requires both local and mcp templates
+        if [ ! -f "$SCRIPT_DIR/templates/local-instructions.md" ]; then
+            print_error "Required template not found: $SCRIPT_DIR/templates/local-instructions.md"
+            echo "Available output modes: mcp, local, both"
+            exit 1
+        fi
+        if [ ! -f "$SCRIPT_DIR/templates/mcp-instructions.md" ]; then
+            print_error "Required template not found: $SCRIPT_DIR/templates/mcp-instructions.md"
+            echo "Available output modes: mcp, local, both"
+            exit 1
+        fi
+    else
+        # Single mode (local or mcp)
+        TEMPLATE_FILE="$SCRIPT_DIR/templates/${OUTPUT_MODE}-instructions.md"
+        if [ ! -f "$TEMPLATE_FILE" ]; then
+            print_error "Required template not found: $TEMPLATE_FILE"
+            echo "Available output modes: mcp, local, both"
+            exit 1
+        fi
     fi
     
     print_success "All required files found"
