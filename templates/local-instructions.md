@@ -31,3 +31,9 @@ Please process this architectural update using the local documentation workflow:
    - Remove any outdated or unused documentation files
    - Archive old versions of documentation if necessary
    - cleanup @.doc-flow/pending-updates.md
+
+6. **Commit Documentation:**
+   - **IMPORTANT:** Use commit prefix to avoid triggering the architecture hook
+   - Commit with: `docs: [description]` or `documentation: [description]`
+   - Example: `git commit -m "docs: update architecture with new PaymentService"`
+   - This prevents an endless loop of documentation updates
