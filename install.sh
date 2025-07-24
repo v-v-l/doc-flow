@@ -12,8 +12,9 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-CONFIG_FILE="doc-flow-config.json"
-PENDING_FILE="pending-architecture-updates.md"
+DOC_FLOW_DIR=".doc-flow"
+CONFIG_FILE="$DOC_FLOW_DIR/config.json"
+PENDING_FILE="$DOC_FLOW_DIR/pending-updates.md"
 HOOK_FILE=".git/hooks/post-commit"
 
 # Function to print colored output
@@ -46,8 +47,9 @@ check_git_repo() {
 setup_directories() {
     print_status "Setting up directory structure..."
     
-    # Create templates directory
-    mkdir -p "templates"
+    # Create isolated .doc-flow directory
+    mkdir -p "$DOC_FLOW_DIR/scripts"
+    mkdir -p "$DOC_FLOW_DIR/templates"
     
     # Create git hooks directory
     mkdir -p .git/hooks
@@ -67,7 +69,8 @@ update_gitignore() {
         cat >> .gitignore << 'EOF'
 
 # Doc Flow - Architecture Documentation Tool
-pending-architecture-updates.md
+.doc-flow/pending-updates.md
+.doc-flow/temp/
 EOF
         print_success "Updated .gitignore"
     else
@@ -87,8 +90,8 @@ update_claudeignore() {
         cat >> .claudeignore << 'EOF'
 
 # Doc Flow - Hide internal tool files from Claude
-scripts/doc-sync.sh
-templates/*-instructions.md
+.doc-flow/scripts/
+.doc-flow/templates/
 EOF
         print_success "Updated .claudeignore"
     else
@@ -110,30 +113,30 @@ install_git_hook() {
     OUTPUT_MODE="mcp"  # default
     KEYWORDS="add|new|create|implement|service|controller|component|module|integration|api"
     
-    if [ -f "$CONFIG_FILE" ]; then
-        OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "$CONFIG_FILE" | cut -d'"' -f4)
-        KEYWORDS=$(grep -o '"detection_keywords":\s*\[[^]]*\]' "$CONFIG_FILE" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' | tr '\n' '|' | sed 's/|$//')
+    if [ -f "doc-flow-config.json" ]; then
+        OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "doc-flow-config.json" | cut -d'"' -f4)
+        KEYWORDS=$(grep -o '"detection_keywords":\s*\[[^]]*\]' "doc-flow-config.json" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' | tr '\n' '|' | sed 's/|$//')
     fi
     
     # Create the clean post-commit hook
     cat > "$HOOK_FILE" << EOF
 #!/bin/bash
 # Doc Flow - Architecture Documentation Hook
-# Auto-generated - reads config: $CONFIG_FILE
+# Auto-generated - reads config: .doc-flow/config.json
 
 # Check if config and doc-sync script exist
-if [ ! -f "$CONFIG_FILE" ]; then
-    echo "⚠️  Doc Flow config not found: $CONFIG_FILE"
+if [ ! -f ".doc-flow/config.json" ]; then
+    echo "⚠️  Doc Flow config not found: .doc-flow/config.json"
     exit 0
 fi
 
-if [ ! -f "scripts/doc-sync.sh" ]; then
-    echo "⚠️  Doc Flow script not found: scripts/doc-sync.sh"
+if [ ! -f ".doc-flow/scripts/doc-sync.sh" ]; then
+    echo "⚠️  Doc Flow script not found: .doc-flow/scripts/doc-sync.sh"
     exit 0
 fi
 
 # Load detection keywords from config
-KEYWORDS=\$(grep -o '"detection_keywords":\s*\[[^]]*\]' "$CONFIG_FILE" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' | tr '\n' '|' | sed 's/|\$//')
+KEYWORDS=\$(grep -o '"detection_keywords":\s*\[[^]]*\]' ".doc-flow/config.json" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' | tr '\n' '|' | sed 's/|\$//')
 if [ -z "\$KEYWORDS" ]; then
     KEYWORDS="$KEYWORDS"
 fi
@@ -147,7 +150,7 @@ if echo "\$COMMIT_MSG" | grep -iE "\$KEYWORDS" > /dev/null; then
     echo "🏗️  Architecture change detected..."
     
     # Use doc-sync.sh to capture the change
-    ./scripts/doc-sync.sh --from-commit
+    ./.doc-flow/scripts/doc-sync.sh --from-commit
     
     echo "💡 Next: Tell Claude to 'Process pending architecture updates'"
     echo ""
@@ -165,10 +168,10 @@ EOF
 
 # Check configuration (don't create, require user to configure first)
 check_config() {
-    if [ ! -f "$CONFIG_FILE" ]; then
-        print_error "Configuration file $CONFIG_FILE not found!"
+    if [ ! -f "doc-flow-config.json" ]; then
+        print_error "Configuration file doc-flow-config.json not found!"
         echo ""
-        echo "Please create $CONFIG_FILE before running install:"
+        echo "Please create doc-flow-config.json before running install:"
         echo ""
         echo "Example configuration:"
         cat << 'EOF'
@@ -190,7 +193,9 @@ EOF
         echo "Then run: ./install.sh"
         exit 1
     else
-        print_success "Configuration found: $CONFIG_FILE"
+        print_success "Configuration found: doc-flow-config.json"
+        # Copy config to .doc-flow directory
+        cp "doc-flow-config.json" "$CONFIG_FILE"
     fi
 }
 
@@ -203,8 +208,8 @@ check_required_files() {
         exit 1
     fi
     
-    # Check templates based on config
-    OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "$CONFIG_FILE" | cut -d'"' -f4)
+    # Check templates based on config  
+    OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "doc-flow-config.json" | cut -d'"' -f4)
     TEMPLATE_FILE="templates/${OUTPUT_MODE}-instructions.md"
     
     if [ ! -f "$TEMPLATE_FILE" ]; then
@@ -216,9 +221,18 @@ check_required_files() {
     print_success "All required files found"
 }
 
-# Skip usage guide creation - keep it simple
-create_usage_guide() {
-    print_status "Skipping usage guide creation (keeping minimal footprint)"
+# Copy required files to .doc-flow directory
+copy_required_files() {
+    print_status "Copying required files to .doc-flow directory..."
+    
+    # Copy scripts
+    cp -r scripts/* "$DOC_FLOW_DIR/scripts/"
+    chmod +x "$DOC_FLOW_DIR/scripts"/*
+    
+    # Copy templates
+    cp -r templates/* "$DOC_FLOW_DIR/templates/"
+    
+    print_success "Required files copied to .doc-flow/"
 }
 
 # Main installation
@@ -234,10 +248,10 @@ main() {
     check_config
     check_required_files
     setup_directories
+    copy_required_files
     update_gitignore
     update_claudeignore
     install_git_hook
-    create_usage_guide
     
     echo ""
     # Get configured output mode for display
@@ -253,7 +267,7 @@ main() {
     echo ""
     echo "🚀 Test it:"
     echo "  git commit -m 'add new UserService component'"
-    echo "  cat $PENDING_FILE"
+    echo "  cat .doc-flow/pending-updates.md"
     echo ""
     echo "💡 Next: Tell Claude to 'Process pending architecture updates'"
     echo ""

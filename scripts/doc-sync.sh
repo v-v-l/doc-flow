@@ -62,10 +62,10 @@ else
 fi
 
 # Read configuration
-CONFIG_FILE="doc-flow-config.json"
+CONFIG_FILE=".doc-flow/config.json"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "❌ Configuration file $CONFIG_FILE not found!"
-    echo "Please create $CONFIG_FILE or run from the project root directory."
+    echo "Please run from the project root directory where doc-flow is installed."
     exit 1
 fi
 
@@ -76,10 +76,10 @@ if [ -z "$OUTPUT_MODE" ]; then
 fi
 
 # Load the appropriate template
-TEMPLATE_FILE="templates/${OUTPUT_MODE}-instructions.md"
+TEMPLATE_FILE=".doc-flow/templates/${OUTPUT_MODE}-instructions.md"
 if [ ! -f "$TEMPLATE_FILE" ]; then
     echo "❌ Template file $TEMPLATE_FILE not found!"
-    echo "Available templates should be: templates/mcp-instructions.md, templates/local-instructions.md"
+    echo "Available templates should be: .doc-flow/templates/mcp-instructions.md, .doc-flow/templates/local-instructions.md"
     exit 1
 fi
 
@@ -90,7 +90,7 @@ BRANCH=$(git branch --show-current 2>/dev/null || echo "no-branch")
 CHANGED_FILES=$(git diff --name-only HEAD~1 2>/dev/null || git diff --cached --name-only 2>/dev/null || echo "No changes")
 
 # Create or append to pending updates file
-cat >> pending-architecture-updates.md << EOF
+cat >> .doc-flow/pending-updates.md << EOF
 
 ---
 
@@ -110,7 +110,7 @@ $(cat "$TEMPLATE_FILE")
 EOF
 
 echo "✅ Architecture update queued successfully!"
-echo "📝 Added to: pending-architecture-updates.md"
+echo "📝 Added to: .doc-flow/pending-updates.md"
 echo "🔧 Output mode: $OUTPUT_MODE (from $CONFIG_FILE)"
 echo ""
 echo "Summary:"

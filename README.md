@@ -32,7 +32,10 @@ git add auth-service.js
 git commit -m "add JWT authentication service"
 # ✅ Architecture docs automatically captured!
 
-# 4. Process updates
+# 4. Check captured updates
+cat .doc-flow/pending-updates.md
+
+# 5. Process updates
 # Tell Claude: "Process pending architecture updates"
 ```
 
@@ -99,11 +102,16 @@ doc-flow/
 **After Installation in Your Project:**
 ```
 your-project/
-├── doc-flow-config.json           # Your configuration
-├── pending-architecture-updates.md # Generated documentation queue
-├── templates/                      # Copied from doc-flow
-├── scripts/                        # Copied from doc-flow
-└── .git/hooks/post-commit         # Auto-installed git hook
+├── doc-flow-config.json           # Your configuration (root level)
+├── .doc-flow/                     # Hidden, isolated folder
+│   ├── config.json               # Copied from your config
+│   ├── pending-updates.md        # Generated documentation queue
+│   ├── scripts/
+│   │   └── doc-sync.sh          # Core capture script
+│   └── templates/
+│       ├── mcp-instructions.md   # MCP processing template
+│       └── local-instructions.md # Local docs processing template
+└── .git/hooks/post-commit        # Auto-installed git hook
 ```
 
 ## 📋 Features
