@@ -75,22 +75,16 @@ if [ -z "$OUTPUT_MODE" ]; then
     OUTPUT_MODE="mcp"  # default fallback
 fi
 
-# Load the appropriate template
-TEMPLATE_FILE=".doc-flow/templates/${OUTPUT_MODE}-instructions.md"
-if [ ! -f "$TEMPLATE_FILE" ]; then
-    echo "❌ Template file $TEMPLATE_FILE not found!"
-    echo "Available templates should be: .doc-flow/templates/mcp-instructions.md, .doc-flow/templates/local-instructions.md"
-    exit 1
-fi
-
 # Rest of the script
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 COMMIT_HASH=$(git log -1 --pretty=format:"%h" 2>/dev/null || echo "no-git")
 BRANCH=$(git branch --show-current 2>/dev/null || echo "no-branch")
 CHANGED_FILES=$(git diff --name-only HEAD~1 2>/dev/null || git diff --cached --name-only 2>/dev/null || echo "No changes")
 
-# Create or append to pending updates file
-cat >> .doc-flow/pending-updates.md << EOF
+# Function to generate update content
+generate_update_content() {
+    local template_file="$1"
+    cat << EOF
 
 ---
 
@@ -105,13 +99,55 @@ $DESCRIPTION
 $CHANGED_FILES
 \`\`\`
 
-$(cat "$TEMPLATE_FILE")
+$(cat "$template_file")
 
 EOF
+}
 
-echo "✅ Architecture update queued successfully!"
-echo "📝 Added to: .doc-flow/pending-updates.md"
-echo "🔧 Output mode: $OUTPUT_MODE (from $CONFIG_FILE)"
+# Handle different output modes
+if [ "$OUTPUT_MODE" = "both" ]; then
+    # Generate both local and mcp files
+    LOCAL_TEMPLATE=".doc-flow/templates/local-instructions.md"
+    MCP_TEMPLATE=".doc-flow/templates/mcp-instructions.md"
+    
+    if [ ! -f "$LOCAL_TEMPLATE" ]; then
+        echo "❌ Template file $LOCAL_TEMPLATE not found!"
+        exit 1
+    fi
+    
+    if [ ! -f "$MCP_TEMPLATE" ]; then
+        echo "❌ Template file $MCP_TEMPLATE not found!"
+        exit 1
+    fi
+    
+    # Generate local file
+    generate_update_content "$LOCAL_TEMPLATE" >> .doc-flow/pending-changes-local.md
+    
+    # Generate mcp file  
+    generate_update_content "$MCP_TEMPLATE" >> .doc-flow/pending-changes-mcp.md
+    
+    echo "✅ Architecture updates queued successfully!"
+    echo "📝 Added to: .doc-flow/pending-changes-local.md"
+    echo "📝 Added to: .doc-flow/pending-changes-mcp.md"
+    echo "🔧 Output mode: both (from $CONFIG_FILE)"
+    
+else
+    # Single mode (local or mcp)
+    TEMPLATE_FILE=".doc-flow/templates/${OUTPUT_MODE}-instructions.md"
+    if [ ! -f "$TEMPLATE_FILE" ]; then
+        echo "❌ Template file $TEMPLATE_FILE not found!"
+        echo "Available templates should be: .doc-flow/templates/mcp-instructions.md, .doc-flow/templates/local-instructions.md"
+        exit 1
+    fi
+    
+    # Generate single file
+    generate_update_content "$TEMPLATE_FILE" >> .doc-flow/pending-updates.md
+    
+    echo "✅ Architecture update queued successfully!"
+    echo "📝 Added to: .doc-flow/pending-updates.md"
+    echo "🔧 Output mode: $OUTPUT_MODE (from $CONFIG_FILE)"
+fi
+
 echo ""
 echo "Summary:"
 echo "  - Description: $DESCRIPTION"
