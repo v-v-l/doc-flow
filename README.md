@@ -1,73 +1,117 @@
 # Doc Flow 🏗️📝
 
-**Universal Architecture Documentation - From Simple READMEs to Advanced Knowledge Systems**
+**Simple Architecture Documentation - Two Modes, Zero Complexity**
 
-Automatically capture and document your software architecture as you code. Works with **any documentation system** - from a simple README.md to advanced knowledge management platforms like Obsidian, Notion, or custom solutions.
-
-## 🌟 Works Everywhere
-
-- **📝 Simple Markdown** - Auto-update README.md or docs/ARCHITECTURE.md
-- **🧠 Knowledge Systems** - Obsidian, Notion, Logseq, Roam Research  
-- **🤖 AI Assistants** - Claude, ChatGPT, or any AI that processes text
-- **📚 Documentation Platforms** - GitBook, Confluence, custom wikis
-- **🔗 No External Dependencies** - Works entirely with git and text files
+Automatically capture your software architecture changes and transform them into documentation. Choose between **MCP-powered knowledge systems** or **simple local markdown files**.
 
 ## 🎯 What It Does
 
 - **Auto-captures** architectural changes from git commits
-- **Generates structured documentation** in any format you need
-- **Maps dependencies and relationships** between components  
-- **Updates documentation automatically** - README, wiki, or knowledge base
-- **Zero overhead** - just commit code normally
-- **No cloud dependencies** - everything runs locally
+- **Two output modes**: MCP integration or local docs  
+- **Zero complexity** - just commit code normally
+- **Transparent workflow** - config → install → documentation
 
 ## ⚡ Quick Start
 
 ```bash
-# 1. Quick install (minimal footprint)
-curl -sSL https://raw.githubusercontent.com/v-v-l/doc-flow/main/install.sh | bash
+# 1. Configure first (choose your mode)
+cat > doc-flow-config.json << 'EOF'
+{
+  "output_mode": "mcp",
+  "auto_capture": true,
+  "detection_keywords": ["add", "new", "create", "implement", "feat", "service", "controller", "component", "module", "integration", "api", "database", "auth", "fix"],
+  "ignore_keywords": ["typo", "format", "lint", "style", "comment"]
+}
+EOF
 
-# 2. Start developing normally  
+# 2. Install (reads your config)
+./install.sh
+
+# 3. Start developing normally  
 git add auth-service.js
 git commit -m "add JWT authentication service"
 # ✅ Architecture docs automatically captured!
 
-# 3. Check captured documentation
-cat .tools/doc-flow/pending-updates.md
-
-# 4. Process updates in your knowledge system
-# Tell your AI assistant: "Process pending architecture updates"
+# 4. Process updates
+# Tell Claude: "Process pending architecture updates"
 ```
+
+## 🔧 Two Simple Modes
+
+### **MCP Mode** (`"output_mode": "mcp"`)
+Perfect for knowledge systems with MCP integration (Obsidian, Notion, etc.):
+- Creates structured notes with wikilinks  
+- Maps component relationships
+- Uses virtual folders and tags
+- Builds knowledge graphs
+
+### **Local Mode** (`"output_mode": "local"`)
+Perfect for simple documentation workflows:
+- Updates `docs/ARCHITECTURE.md`
+- Maintains README.md sections
+- Creates markdown dependency tables
+- Works with any text editor
 
 ## 🏗️ How It Works
 
-### 1. **Smart Git Hook Detection**
+### 1. **Configuration First**
+```json
+{
+  "output_mode": "mcp",         // or "local"
+  "auto_capture": true,
+  "detection_keywords": [...],  // what triggers capture
+  "ignore_keywords": [...]      // what to skip
+}
+```
+
+### 2. **Transparent Installation**
+- `install.sh` reads your config
+- Sets up git hooks accordingly
+- Changes require re-running install (transparent!)
+
+### 3. **Smart Git Hook Detection**
 Analyzes commits for architecture keywords:
 - `add`, `new`, `create`, `implement`
 - `service`, `controller`, `component`, `module`
 - `integration`, `api`, `database`
 
-### 2. **Structured Documentation Generation**
-Creates detailed instructions for your knowledge system:
-- Component relationships and dependencies
-- Module organization and naming conventions
-- Data flow documentation
-- Integration mapping
+### 4. **Mode-Specific Output**
+Creates `pending-architecture-updates.md` with:
+- **MCP Mode**: MCP function calls and wikilink instructions
+- **Local Mode**: File update instructions for docs folder
 
-### 3. **Knowledge System Integration**
-Works with any AI-powered knowledge management system:
-- Obsidian with Claude/ChatGPT
-- Notion AI
-- Logseq
-- Custom knowledge bases
+## 📁 Clean Project Structure
+
+**Doc Flow Repository:**
+```
+doc-flow/
+├── README.md                      # This documentation
+├── LICENSE                        # MIT license
+├── doc-flow-config.json           # Example configuration
+├── install.sh                     # Installation script
+├── scripts/
+│   └── doc-sync.sh               # Core capture script
+└── templates/
+    ├── mcp-instructions.md        # MCP processing template
+    └── local-instructions.md      # Local docs processing template
+```
+
+**After Installation in Your Project:**
+```
+your-project/
+├── doc-flow-config.json           # Your configuration
+├── pending-architecture-updates.md # Generated documentation queue
+├── templates/                      # Copied from doc-flow
+├── scripts/                        # Copied from doc-flow
+└── .git/hooks/post-commit         # Auto-installed git hook
+```
 
 ## 📋 Features
 
 ### ✅ Automatic Capture
 - **Git Hook Integration** - Runs on every commit
 - **Smart Detection** - Only captures relevant changes
-- **Context Aware** - Includes commit info, changed files, branch data
-- **Flexible Triggers** - Configurable keywords and patterns
+- **Context Aware** - Includes commit info, changed files
 
 ### ✅ Multiple Input Modes
 ```bash
@@ -84,234 +128,96 @@ git commit -m "add PaymentService" # Auto-captured
 ./scripts/doc-sync.sh --from-commit
 ```
 
-### ✅ Universal Compatibility
-- **Any Documentation System** - README.md, wikis, knowledge bases
-- **Structured Output** - Works with any AI assistant or manual processing
-- **Configurable Templates** - Adapt to your documentation style
-- **Multiple Formats** - Markdown, JSON, plain text, custom formats
-- **API Ready** - Can integrate with any documentation platform
+### ✅ Transparent Configuration
+- Config changes require re-install (no mysterious behavior)
+- External templates can be customized
+- Simple two-mode design
 
-## 🛠️ Installation Options
+## 🎯 Examples
 
-### Option 1: Quick Install (Recommended)
-```bash
-curl -sSL https://raw.githubusercontent.com/v-v-l/doc-flow/main/install.sh | bash
+### MCP Mode Output
+```markdown
+### Claude Processing Instructions
+1. `search("PaymentService")` to check existing docs
+2. `create_note` with tags: ["component", "service"]
+3. `add_wikilink` for bidirectional connections
+4. Place in virtual folder: `architecture/components/`
 ```
 
-### Option 2: Manual Setup
-```bash
-# Clone the tool
-git clone https://github.com/v-v-l/doc-flow.git .doc-flow
-
-# Run setup in your project
-./.doc-flow/scripts/setup-hooks.sh
-
-# Configure for your knowledge system
-cp .doc-flow/config/vault-config.json.example vault-config.json
-# Edit configuration as needed
+### Local Mode Output  
+```markdown
+### Claude Processing Instructions
+1. Read existing `/docs/ARCHITECTURE.md`
+2. Add PaymentService under "## Components" section
+3. Update dependency table
+4. Create component documentation in `/docs/components/`
 ```
 
-## 📁 Project Structure After Install
+## ⚙️ Configuration Options
 
-```
-your-project/
-├── .git/hooks/post-commit              # Auto-installed git hook
-├── .doc-flow/                          # Tool installation
-│   ├── scripts/                        # Core functionality
-│   ├── templates/                      # Documentation templates  
-│   └── config/                         # Configuration options
-│   ├── pending-updates.md              # Generated documentation queue
-└── vault-config.json                   # Your customizations
-```
-
-## ⚙️ Configuration
-
-### Basic Configuration (`.tools/doc-flow/config.json`)
+### Basic Config (`doc-flow-config.json`)
 ```json
 {
-  "knowledge_system": "obsidian",
-  "output_format": "markdown",
+  "output_mode": "mcp",               // "mcp" or "local"
+  "auto_capture": true,
   "detection_keywords": [
-    "add", "new", "create", "implement",
-    "service", "controller", "component", "module"
+    "add", "new", "create", "implement", "feat",
+    "service", "controller", "component", "module", 
+    "integration", "api", "database", "auth", "fix"
   ],
-  "naming_conventions": {
-    "components": "PascalCase",
-    "modules": "kebab-case", 
-    "systems": "Title Case"
-  },
-  "virtual_folders": {
-    "architecture": "architecture/",
-    "components": "architecture/components/",
-    "modules": "architecture/modules/"
-  }
+  "ignore_keywords": [
+    "typo", "format", "lint", "style", "comment"
+  ],
+  "custom_template_path": null        // optional override
 }
 ```
-
-### Knowledge System Configuration
-
-#### Obsidian (Local Vault)
-```json
-{
-  "knowledge_system": "obsidian",
-  "knowledge_system_config": {
-    "obsidian": {
-      "mode": "local",
-      "vault_path": "/path/to/your/obsidian/vault",
-      "use_wikilinks": true,
-      "avoid_hash_in_titles": true
-    }
-  }
-}
-```
-
-#### Obsidian (Remote API)
-For remote Obsidian API setups (like n8n integrations):
-```json
-{
-  "knowledge_system": "obsidian_remote",
-  "knowledge_system_config": {
-    "obsidian_remote": {
-      "mode": "remote",
-      "api_url": "https://obsidian.your-domain.com",
-      "api_key": "your-obsidian-api-key",
-      "use_wikilinks": true,
-      "avoid_hash_in_titles": true
-    }
-  }
-}
-```
-
-Environment variables for remote Obsidian:
-```bash
-export OBSIDIAN_API_URL="https://obsidian.your-domain.com"
-export OBSIDIAN_API_KEY="your-obsidian-api-key"
-```
-
-#### Notion
-```json
-{
-  "knowledge_system": "notion", 
-  "knowledge_system_config": {
-    "notion": {
-      "database_id": "your-notion-database-id",
-      "api_key": "your-notion-integration-token"
-    }
-  }
-}
-```
-
-#### Custom Knowledge Systems
-```json
-{
-  "knowledge_system": "custom",
-  "knowledge_system_config": {
-    "custom": {
-      "api_endpoint": "https://your-api.example.com",
-      "auth_token": "your-auth-token",
-      "custom_headers": {
-        "Content-Type": "application/json"
-      }
-    }
-  }
-}
-```
-
-### Advanced Configuration
-- **Custom Keywords** - Define your own trigger words
-- **Template Customization** - Adapt documentation format
-- **Integration Hooks** - Connect to knowledge system APIs
-- **Filtering Rules** - Control what gets documented
-
-## 🎯 Use Cases & Examples
-
-### 📝 **Simple Documentation** ([See Example](examples/README_SIMPLE.md))
-- **README.md updates** - Auto-maintain architecture sections
-- **Wiki documentation** - GitHub/GitLab wikis with commit sync
-- **Markdown files** - No external tools required
-- **Perfect for**: Solo developers, simple projects, quick documentation
-
-### 🧠 **Advanced Knowledge Systems** ([See Obsidian Example](examples/OBSIDIAN_ADVANCED.md))  
-- **Obsidian** - Graph view, wikilinks, advanced relationships ⭐ **Best Integration**
-- **Notion** - Database-driven architecture documentation
-- **Logseq** - Block-based architecture tracking
-- **Perfect for**: Complex projects, team collaboration, visual architecture mapping
-
-### 🏢 **Enterprise & Team Development**
-- **Microservice dependency mapping** across distributed teams
-- **API documentation automation** with integration tracking
-- **Architecture decision records (ADRs)** with automatic updates
-- **System integration tracking** across multiple services
-
-### 📚 **Open Source & Community**
-- **Contributor onboarding** - Auto-generated architecture guides
-- **Evolution tracking** - Document how architecture changes over time
-- **Integration examples** - Show how components work together
-- **Community documentation** - Keep public docs synchronized
-
-## 🔧 Advanced Usage
 
 ### Custom Templates
-Create your own documentation templates in `templates/`:
-```markdown
-# templates/custom-component.md
-# {{component_name}}
-
-## Purpose
-{{component_purpose}}
-
-## Dependencies  
-{{dependencies}}
-
-## Integration Points
-{{integrations}}
+Override default templates by setting `custom_template_path`:
+```json
+{
+  "output_mode": "mcp",
+  "custom_template_path": "my-templates/custom-mcp.md"
+}
 ```
 
-### API Integration
-```bash
-# Direct API calls to your knowledge system
-./scripts/doc-sync.sh --api-mode "Added UserService"
-# Posts directly to your knowledge base API
-```
+## 🔄 Workflow
 
-### Team Workflows
-```bash
-# Team-specific configuration
-./scripts/setup-hooks.sh --team-config team-settings.json
+1. **Configure** → Create `doc-flow-config.json`
+2. **Install** → Run `./install.sh` (reads config, sets up hooks)
+3. **Code** → Commit normally with architecture keywords
+4. **Process** → Tell Claude to "Process pending architecture updates"
+5. **Update Config** → Re-run `./install.sh` for changes
 
-# Shared documentation standards
-./scripts/doc-sync.sh --template enterprise
-```
+## 🎯 When to Use Which Mode
+
+### Use **MCP Mode** when:
+- You have Claude with MCP integration
+- Using Obsidian, Notion, or knowledge systems
+- Want structured relationships and wikilinks
+- Building complex architecture documentation
+
+### Use **Local Mode** when:
+- Simple markdown documentation
+- No external knowledge systems
+- Team uses basic docs folder structure
+- Want self-contained documentation
 
 ## 🤝 Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions! The system is designed to be simple and extensible.
 
-### Development Setup
-```bash
-git clone https://github.com/v-v-l/doc-flow.git
-cd doc-flow
-./scripts/dev-setup.sh
-```
-
-### Adding Knowledge System Support
-1. Create template in `templates/systems/your-system/`
-2. Add configuration in `config/systems/`
+### Adding New Templates
+1. Create template in `templates/yourmode-instructions.md`
+2. Update config validation
 3. Test with example project
-4. Submit PR with documentation
 
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 🙋 Support
-
-- **Issues**: [GitHub Issues](https://github.com/v-v-l/doc-flow/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/v-v-l/doc-flow/discussions)
-- **Documentation**: [Wiki](https://github.com/v-v-l/doc-flow/wiki)
-
 ---
 
-**Made with ❤️ for developers who love good documentation**
+**Simple, Transparent, Effective Architecture Documentation**
 
-*Automatically bridge the gap between code and knowledge. Because great architecture deserves great documentation.*
+*Two modes. Zero complexity. Maximum value.*

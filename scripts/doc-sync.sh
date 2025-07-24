@@ -1,6 +1,6 @@
 #!/bin/bash
-# Enhanced Architecture Documentation Sync Script
-# Can work standalone OR with git hooks
+# Doc Flow - Architecture Documentation Sync Script
+# Reads doc-flow-config.json for output mode and templates
 
 # Function to analyze git changes and suggest architecture description
 analyze_git_changes() {
@@ -61,7 +61,29 @@ else
     DESCRIPTION="$1"
 fi
 
-# Rest of the script (same as original doc-sync)
+# Read configuration
+CONFIG_FILE="doc-flow-config.json"
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "❌ Configuration file $CONFIG_FILE not found!"
+    echo "Please create $CONFIG_FILE or run from the project root directory."
+    exit 1
+fi
+
+# Extract output mode from config (simple grep-based approach)
+OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "$CONFIG_FILE" | cut -d'"' -f4)
+if [ -z "$OUTPUT_MODE" ]; then
+    OUTPUT_MODE="mcp"  # default fallback
+fi
+
+# Load the appropriate template
+TEMPLATE_FILE="templates/${OUTPUT_MODE}-instructions.md"
+if [ ! -f "$TEMPLATE_FILE" ]; then
+    echo "❌ Template file $TEMPLATE_FILE not found!"
+    echo "Available templates should be: templates/mcp-instructions.md, templates/local-instructions.md"
+    exit 1
+fi
+
+# Rest of the script
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 COMMIT_HASH=$(git log -1 --pretty=format:"%h" 2>/dev/null || echo "no-git")
 BRANCH=$(git branch --show-current 2>/dev/null || echo "no-branch")
@@ -83,40 +105,13 @@ $DESCRIPTION
 $CHANGED_FILES
 \`\`\`
 
-### Claude Processing Instructions
-Please process this architectural update using the architecture documentation workflow:
-
-1. **Discovery Phase:**
-   - \`search("component-name")\` to check existing docs
-   - \`list_notes\` with \`virtual_folder: "architecture/overview"\`
-   - \`graph_search("related-concepts")\` for connections
-
-2. **Documentation Actions Needed:**
-   - Parse description for: components, dependencies, relationships
-   - Create/update notes following architecture naming conventions:
-     * Components: PascalCase (PaymentService)
-     * Modules: kebab-case (payment-processing)  
-     * Systems: Title Case (Payment Gateway)
-   - Use appropriate tags: \`["component", "service"]\` or \`["module", "core"]\`
-   - Place in correct virtual folder: \`architecture/components/\` or \`architecture/modules/\`
-
-3. **Relationship Mapping:**
-   - Document dependencies: what this component needs
-   - Document dependents: what uses this component
-   - Use \`add_wikilink\` for bidirectional connections
-   - Update data flow documentation if applicable
-
-4. **Validation:**
-   - \`validate_note_links\` to ensure all connections work
-   - \`suggest_connections\` for additional relationships
-   - \`get_knowledge_base_health\` for overall integrity
-
-**Architecture Prompt Reference:** @docs/architecture-documentation-prompt.md
+$(cat "$TEMPLATE_FILE")
 
 EOF
 
 echo "✅ Architecture update queued successfully!"
 echo "📝 Added to: pending-architecture-updates.md"
+echo "🔧 Output mode: $OUTPUT_MODE (from $CONFIG_FILE)"
 echo ""
 echo "Summary:"
 echo "  - Description: $DESCRIPTION"

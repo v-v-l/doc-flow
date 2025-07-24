@@ -12,9 +12,8 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-TOOLS_DIR=".tools/doc-flow"
-CONFIG_FILE="$TOOLS_DIR/config.json"
-PENDING_FILE="$TOOLS_DIR/pending-updates.md"
+CONFIG_FILE="doc-flow-config.json"
+PENDING_FILE="pending-architecture-updates.md"
 HOOK_FILE=".git/hooks/post-commit"
 
 # Function to print colored output
@@ -43,18 +42,17 @@ check_git_repo() {
     print_success "Git repository detected"
 }
 
-# Setup clean directory structure
+# Setup directory structure
 setup_directories() {
-    print_status "Setting up clean directory structure..."
+    print_status "Setting up directory structure..."
     
-    # Create .tools/doc-flow directory
-    mkdir -p "$TOOLS_DIR/scripts"
-    mkdir -p "$TOOLS_DIR/templates"
+    # Create templates directory
+    mkdir -p "templates"
     
     # Create git hooks directory
     mkdir -p .git/hooks
     
-    print_success "Clean directory structure created"
+    print_success "Directory structure created"
 }
 
 # Update .gitignore to exclude doc-flow files
@@ -69,8 +67,7 @@ update_gitignore() {
         cat >> .gitignore << 'EOF'
 
 # Doc Flow - Architecture Documentation Tool
-.tools/doc-flow/pending-updates.md
-.tools/doc-flow/temp/
+pending-architecture-updates.md
 EOF
         print_success "Updated .gitignore"
     else
@@ -90,8 +87,8 @@ update_claudeignore() {
         cat >> .claudeignore << 'EOF'
 
 # Doc Flow - Hide internal tool files from Claude
-.tools/doc-flow/scripts/
-.tools/doc-flow/templates/
+scripts/doc-sync.sh
+templates/*-instructions.md
 EOF
         print_success "Updated .claudeignore"
     else
@@ -109,76 +106,50 @@ install_git_hook() {
         mv "$HOOK_FILE" "$HOOK_FILE.backup"
     fi
     
+    # Read config to determine output mode and settings
+    OUTPUT_MODE="mcp"  # default
+    KEYWORDS="add|new|create|implement|service|controller|component|module|integration|api"
+    
+    if [ -f "$CONFIG_FILE" ]; then
+        OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "$CONFIG_FILE" | cut -d'"' -f4)
+        KEYWORDS=$(grep -o '"detection_keywords":\s*\[[^]]*\]' "$CONFIG_FILE" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' | tr '\n' '|' | sed 's/|$//')
+    fi
+    
     # Create the clean post-commit hook
-    cat > "$HOOK_FILE" << 'EOF'
+    cat > "$HOOK_FILE" << EOF
 #!/bin/bash
 # Doc Flow - Architecture Documentation Hook
-# Auto-generated - do not edit directly
+# Auto-generated - reads config: $CONFIG_FILE
 
-# Configuration
-TOOLS_DIR=".tools/doc-flow"
-CONFIG_FILE="$TOOLS_DIR/config.json"
-PENDING_FILE="$TOOLS_DIR/pending-updates.md"
+# Check if config and doc-sync script exist
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "⚠️  Doc Flow config not found: $CONFIG_FILE"
+    exit 0
+fi
 
-# Load configuration
-if [ -f "$CONFIG_FILE" ]; then
-    KEYWORDS=$(grep -o '"detection_keywords":\s*\[[^]]*\]' "$CONFIG_FILE" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' | tr '\n' '|' | sed 's/|$//')
-else
-    KEYWORDS="add|new|create|implement|service|controller|component|module|integration|api"
+if [ ! -f "scripts/doc-sync.sh" ]; then
+    echo "⚠️  Doc Flow script not found: scripts/doc-sync.sh"
+    exit 0
+fi
+
+# Load detection keywords from config
+KEYWORDS=\$(grep -o '"detection_keywords":\s*\[[^]]*\]' "$CONFIG_FILE" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' | tr '\n' '|' | sed 's/|\$//')
+if [ -z "\$KEYWORDS" ]; then
+    KEYWORDS="$KEYWORDS"
 fi
 
 # Get commit info
-COMMIT_MSG=$(git log -1 --pretty=%B)
-COMMIT_HASH=$(git log -1 --pretty=format:"%h")
-BRANCH=$(git branch --show-current)
-CHANGED_FILES=$(git diff --name-only HEAD~1)
+COMMIT_MSG=\$(git log -1 --pretty=%B)
 
 # Check if this looks like an architectural change
-if echo "$COMMIT_MSG" | grep -iE "$KEYWORDS" > /dev/null; then
+if echo "\$COMMIT_MSG" | grep -iE "\$KEYWORDS" > /dev/null; then
     echo ""
     echo "🏗️  Architecture change detected..."
     
-    # Create documentation update in clean location
-    TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+    # Use doc-sync.sh to capture the change
+    ./scripts/doc-sync.sh --from-commit
     
-    # Create pending file if it doesn't exist
-    if [ ! -f "$PENDING_FILE" ]; then
-        echo "# Doc Flow - Pending Architecture Updates" > "$PENDING_FILE"
-        echo "" >> "$PENDING_FILE"
-        echo "This file contains automatically captured architecture changes that need processing." >> "$PENDING_FILE"
-    fi
-    
-    cat >> "$PENDING_FILE" << EOL
-
----
-
-## Auto-Captured: $TIMESTAMP
-**Branch:** $BRANCH | **Commit:** $COMMIT_HASH
-
-### Commit Message
-$COMMIT_MSG
-
-### Files Modified
-\`\`\`
-$CHANGED_FILES
-\`\`\`
-
-### Processing Instructions
-Auto-detected architecture change. Please analyze and document:
-
-1. **Review Changes**: Examine commit and modified files
-2. **Extract Components**: Identify new/modified components, modules, integrations
-3. **Document Relationships**: Map dependencies and connections
-4. **Update Architecture**: Create/update documentation following project conventions
-
-**Next Steps**: Process this update in your knowledge management system
-**Configuration**: See $CONFIG_FILE for project-specific settings
-
-EOL
-
-    echo "✅ Architecture documentation queued"
-    echo "📝 See: $PENDING_FILE"
-    echo "💡 Next: Process updates in your knowledge management system"
+    echo "💡 Next: Tell Claude to 'Process pending architecture updates'"
     echo ""
 else
     # Silent for non-architecture commits to avoid noise
@@ -192,109 +163,62 @@ EOF
     print_success "Git hook installed"
 }
 
-# Create clean configuration
-create_config() {
+# Check configuration (don't create, require user to configure first)
+check_config() {
     if [ ! -f "$CONFIG_FILE" ]; then
-        print_status "Creating configuration..."
-        
-        cat > "$CONFIG_FILE" << 'EOF'
+        print_error "Configuration file $CONFIG_FILE not found!"
+        echo ""
+        echo "Please create $CONFIG_FILE before running install:"
+        echo ""
+        echo "Example configuration:"
+        cat << 'EOF'
 {
-  "knowledge_system": "obsidian",
-  "output_format": "markdown",
+  "output_mode": "mcp",
+  "auto_capture": true,
   "detection_keywords": [
     "add", "new", "create", "implement", "feat",
     "service", "controller", "component", "module", 
-    "integration", "api", "database", "auth"
+    "integration", "api", "database", "auth", "fix"
   ],
-  "naming_conventions": {
-    "components": "PascalCase",
-    "modules": "kebab-case",
-    "systems": "Title Case"
-  },
-  "virtual_folders": {
-    "architecture": "architecture/",
-    "components": "architecture/components/",
-    "modules": "architecture/modules/"
-  },
-  "auto_capture": true,
-  "include_file_analysis": true
+  "ignore_keywords": [
+    "typo", "format", "lint", "style", "comment"
+  ],
+  "custom_template_path": null
 }
 EOF
-        print_success "Configuration created: $CONFIG_FILE"
+        echo ""
+        echo "Then run: ./install.sh"
+        exit 1
     else
-        print_warning "Configuration already exists: $CONFIG_FILE"
+        print_success "Configuration found: $CONFIG_FILE"
     fi
 }
 
-# Copy helper scripts and templates
-copy_tools() {
-    print_status "Installing helper tools..."
+# Ensure required files exist
+check_required_files() {
+    print_status "Checking required files..."
     
-    # Get script directory
-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-    
-    # Copy scripts if available
-    if [ -d "$SCRIPT_DIR/scripts" ]; then
-        cp -r "$SCRIPT_DIR/scripts"/* "$TOOLS_DIR/scripts/" 2>/dev/null || true
-        chmod +x "$TOOLS_DIR/scripts"/* 2>/dev/null || true
+    if [ ! -f "scripts/doc-sync.sh" ]; then
+        print_error "Required file not found: scripts/doc-sync.sh"
+        exit 1
     fi
     
-    # Copy templates if available  
-    if [ -d "$SCRIPT_DIR/templates" ]; then
-        cp -r "$SCRIPT_DIR/templates"/* "$TOOLS_DIR/templates/" 2>/dev/null || true
+    # Check templates based on config
+    OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "$CONFIG_FILE" | cut -d'"' -f4)
+    TEMPLATE_FILE="templates/${OUTPUT_MODE}-instructions.md"
+    
+    if [ ! -f "$TEMPLATE_FILE" ]; then
+        print_error "Required template not found: $TEMPLATE_FILE"
+        echo "Available output modes: mcp, local"
+        exit 1
     fi
     
-    print_success "Helper tools installed"
+    print_success "All required files found"
 }
 
-# Create usage guide
+# Skip usage guide creation - keep it simple
 create_usage_guide() {
-    cat > "$TOOLS_DIR/README.md" << 'EOF'
-# Doc Flow - Usage Guide
-
-## What's Installed
-
-- **Git Hook**: `.git/hooks/post-commit` - Automatically captures architecture changes
-- **Configuration**: `.tools/doc-flow/config.json` - Customize detection and output
-- **Pending Updates**: `.tools/doc-flow/pending-updates.md` - Queue of changes to process
-- **Helper Scripts**: `.tools/doc-flow/scripts/` - Manual processing tools
-- **Templates**: `.tools/doc-flow/templates/` - Documentation templates
-
-## Quick Start
-
-1. **Make a commit with architecture keywords**:
-   ```bash
-   git commit -m "add UserService component for authentication"
-   ```
-
-2. **Check captured documentation**:
-   ```bash
-   cat .tools/doc-flow/pending-updates.md
-   ```
-
-3. **Process updates in your knowledge management system**
-
-## Configuration
-
-Edit `.tools/doc-flow/config.json` to customize:
-- Detection keywords
-- Naming conventions  
-- Virtual folder structure
-- Knowledge system integration
-
-## Manual Processing
-
-Use helper scripts in `.tools/doc-flow/scripts/` for manual documentation sync.
-
-## Clean Uninstall
-
-To remove Doc Flow completely:
-```bash
-rm -rf .tools/doc-flow
-rm .git/hooks/post-commit
-# Remove Doc Flow entries from .gitignore and .claudeignore
-```
-EOF
+    print_status "Skipping usage guide creation (keeping minimal footprint)"
 }
 
 # Main installation
@@ -307,32 +231,31 @@ main() {
     
     # Run installation steps
     check_git_repo
+    check_config
+    check_required_files
     setup_directories
     update_gitignore
     update_claudeignore
     install_git_hook
-    create_config
-    copy_tools
     create_usage_guide
     
     echo ""
-    echo "🎉 Clean Installation Complete!"
+    # Get configured output mode for display
+    OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "$CONFIG_FILE" | cut -d'"' -f4)
+    
+    echo "🎉 Installation Complete!"
     echo ""
     echo "📋 What's installed:"
     echo "  ✅ Git hook: .git/hooks/post-commit"
-    echo "  ✅ Tool files: .tools/doc-flow/"
+    echo "  ✅ Configuration: $CONFIG_FILE"
+    echo "  ✅ Output mode: $OUTPUT_MODE"
     echo "  ✅ Updated: .gitignore and .claudeignore"
-    echo ""
-    echo "🎯 Minimal footprint:"
-    echo "  • No files in project root"
-    echo "  • All tools in .tools/doc-flow/"
-    echo "  • Properly excluded from git and Claude"
     echo ""
     echo "🚀 Test it:"
     echo "  git commit -m 'add new UserService component'"
-    echo "  cat .tools/doc-flow/pending-updates.md"
+    echo "  cat $PENDING_FILE"
     echo ""
-    echo "📖 Usage: .tools/doc-flow/README.md"
+    echo "💡 Next: Tell Claude to 'Process pending architecture updates'"
     echo ""
 }
 

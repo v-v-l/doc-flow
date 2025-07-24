@@ -1,0 +1,13 @@
+{
+  "output_mode": "mcp",
+  "auto_capture": true,
+  "detection_keywords": [
+    "add", "new", "create", "implement", "feat",
+    "service", "controller", "component", "module", 
+    "integration", "api", "database", "auth", "fix"
+  ],
+  "ignore_keywords": [
+    "typo", "format", "lint", "style", "comment"
+  ],
+  "custom_template_path": null
+}
