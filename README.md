@@ -16,7 +16,7 @@ Automatically capture your software architecture changes and transform them into
 ### Step 1: Get Doc Flow
 ```bash
 # In your project directory
-git clone https://github.com/yourusername/doc-flow.git .doc-flow-setup
+git clone https://github.com/v-v-l/doc-flow.git .doc-flow-setup
 cd .doc-flow-setup
 ```
 
