@@ -13,8 +13,17 @@ Automatically capture your software architecture changes and transform them into
 
 ## ⚡ Quick Start
 
+### Step 1: Get Doc Flow
 ```bash
-# 1. Configure first (choose your mode)
+# In your project directory
+git clone https://github.com/yourusername/doc-flow.git .doc-flow-setup
+cd .doc-flow-setup
+```
+
+### Step 2: Configure Your Mode
+```bash
+# In your project root (where you want doc-flow installed)
+cd ..
 cat > doc-flow-config.json << 'EOF'
 {
   "output_mode": "mcp",
@@ -23,19 +32,35 @@ cat > doc-flow-config.json << 'EOF'
   "ignore_keywords": ["typo", "format", "lint", "style", "comment"]
 }
 EOF
+```
 
-# 2. Install (reads your config)
-./install.sh
+### Step 3: Install Doc Flow
+```bash
+# Run installer from doc-flow directory
+./.doc-flow-setup/install.sh
 
-# 3. Start developing normally  
+# Clean up temporary files
+rm -rf .doc-flow-setup
+```
+
+**What the installer does:**
+1. ✅ Creates `.doc-flow/` directory in your project
+2. ✅ Copies scripts and templates to `.doc-flow/`
+3. ✅ Copies your config to `.doc-flow/config.json`
+4. ✅ Installs git hook at `.git/hooks/post-commit`
+5. ✅ Updates `.gitignore` and `.claudeignore`
+
+### Step 4: Start Using
+```bash
+# Develop normally - doc-flow captures architecture changes automatically
 git add auth-service.js
 git commit -m "add JWT authentication service"
 # ✅ Architecture docs automatically captured!
 
-# 4. Check captured updates
+# Check captured updates
 cat .doc-flow/pending-updates.md
 
-# 5. Process updates
+# Process updates with Claude
 # Tell Claude: "Process pending architecture updates"
 ```
 
