@@ -194,8 +194,6 @@ EOF
         exit 1
     else
         print_success "Configuration found: doc-flow-config.json"
-        # Copy config to .doc-flow directory
-        cp "doc-flow-config.json" "$CONFIG_FILE"
     fi
 }
 
@@ -224,6 +222,9 @@ check_required_files() {
 # Copy required files to .doc-flow directory
 copy_required_files() {
     print_status "Copying required files to .doc-flow directory..."
+    
+    # Copy configuration
+    cp "doc-flow-config.json" "$CONFIG_FILE"
     
     # Copy scripts
     cp -r scripts/* "$DOC_FLOW_DIR/scripts/"
