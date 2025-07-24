@@ -27,4 +27,8 @@ Please process this architectural update using the MCP architecture documentatio
    - `suggest_connections` for additional relationships
    - `get_knowledge_base_health` for overall integrity
 
-**Architecture Prompt Reference:** @templates/architecture-prompt.md
+5. **Cleanup:**
+   - Remove any outdated or unused documentation 
+   - cleanup @.doc-flow/pending-updates.md
+
+**Architecture Prompt Reference:** @templates/architecture-documentation-prompt.md

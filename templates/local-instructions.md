@@ -20,8 +20,14 @@ Please process this architectural update using the local documentation workflow:
    - Create dependency tables when helpful
    - Include code examples for key interfaces
    - Link between documentation files using relative paths
+   - Use mermaid diagrams for complex data flows / schemas
 
 4. **Validation:**
    - Ensure all internal links work
    - Verify documentation is consistent with codebase
    - Check that new components are properly categorized
+
+5. **Cleanup:**
+   - Remove any outdated or unused documentation files
+   - Archive old versions of documentation if necessary
+   - cleanup @.doc-flow/pending-updates.md

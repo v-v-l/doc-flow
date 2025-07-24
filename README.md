@@ -61,7 +61,7 @@ git commit -m "add JWT authentication service"
 cat .doc-flow/pending-updates.md
 
 # Process updates with Claude
-# Tell Claude: "Process pending architecture updates"
+# Tell Claude: "please proceed the file" to process pending-updates.md
 ```
 
 ## 🔧 Two Simple Modes
@@ -219,7 +219,7 @@ Override default templates by setting `custom_template_path`:
 1. **Configure** → Create `doc-flow-config.json`
 2. **Install** → Run `./install.sh` (reads config, sets up hooks)
 3. **Code** → Commit normally with architecture keywords
-4. **Process** → Tell Claude to "Process pending architecture updates"
+4. **Process** → Tell Claude to "please proceed the file" for pending-updates.md
 5. **Update Config** → Re-run `./install.sh` for changes
 
 ## 🎯 When to Use Which Mode
