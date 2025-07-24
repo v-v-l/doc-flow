@@ -7,7 +7,7 @@ Automatically capture your software architecture changes and transform them into
 ## 🎯 What It Does
 
 - **Auto-captures** architectural changes from git commits
-- **Two output modes**: MCP integration or local docs  
+- **Three output modes**: MCP integration, local docs, or both for comparison  
 - **Zero complexity** - just commit code normally
 - **Transparent workflow** - config → install → documentation
 
@@ -26,7 +26,7 @@ cd .doc-flow-setup
 cd ..
 cat > doc-flow-config.json << 'EOF'
 {
-  "output_mode": "mcp",
+  "output_mode": "local",
   "auto_capture": true,
   "detection_keywords": ["add", "new", "create", "implement", "feat", "service", "controller", "component", "module", "integration", "api", "database", "auth", "fix"],
   "ignore_keywords": ["typo", "format", "lint", "style", "comment"]
@@ -64,7 +64,14 @@ cat .doc-flow/pending-updates.md
 # Tell Claude: "please proceed the file" to process pending-updates.md
 ```
 
-## 🔧 Two Simple Modes
+## 🔧 Three Simple Modes
+
+### **Local Mode** (`"output_mode": "local"`) - *Default*
+Perfect for simple documentation workflows:
+- Updates `docs/ARCHITECTURE.md`
+- Maintains README.md sections
+- Creates markdown dependency tables
+- Works with any text editor
 
 ### **MCP Mode** (`"output_mode": "mcp"`)
 Perfect for knowledge systems with MCP integration (Obsidian, Notion, etc.):
@@ -73,19 +80,19 @@ Perfect for knowledge systems with MCP integration (Obsidian, Notion, etc.):
 - Uses virtual folders and tags
 - Builds knowledge graphs
 
-### **Local Mode** (`"output_mode": "local"`)
-Perfect for simple documentation workflows:
-- Updates `docs/ARCHITECTURE.md`
-- Maintains README.md sections
-- Creates markdown dependency tables
-- Works with any text editor
+### **Both Mode** (`"output_mode": "both"`)
+Perfect for comparing workflows and efficiency:
+- Creates two files: `pending-updates.md-local` and `pending-updates.md-mcp`
+- Same commit details, different documentation approaches
+- Lets you test which mode works better for your project
+- Ideal for evaluation and team decision-making
 
 ## 🏗️ How It Works
 
 ### 1. **Configuration First**
 ```json
 {
-  "output_mode": "mcp",         // or "local"
+  "output_mode": "local",       // "local", "mcp", or "both"
   "auto_capture": true,
   "detection_keywords": [...],  // what triggers capture
   "ignore_keywords": [...]      // what to skip
@@ -104,9 +111,10 @@ Analyzes commits for architecture keywords:
 - `integration`, `api`, `database`
 
 ### 4. **Mode-Specific Output**
-Creates `pending-architecture-updates.md` with:
-- **MCP Mode**: MCP function calls and wikilink instructions
-- **Local Mode**: File update instructions for docs folder
+Creates documentation files based on your mode:
+- **Local Mode**: `pending-updates.md` with file-based documentation instructions
+- **MCP Mode**: `pending-updates.md` with MCP function calls and wikilink instructions  
+- **Both Mode**: `pending-updates.md-local` AND `pending-updates.md-mcp` for comparison
 
 ## 📁 Clean Project Structure
 
@@ -120,8 +128,10 @@ doc-flow/
 ├── scripts/
 │   └── doc-sync.sh               # Core capture script
 └── templates/
-    ├── mcp-instructions.md        # MCP processing template
-    └── local-instructions.md      # Local docs processing template
+    ├── local-architecture-prompt.md  # Local documentation system prompt
+    ├── mcp-architecture-prompt.md    # MCP documentation system prompt
+    ├── local-instructions.md         # Local processing workflow
+    └── mcp-instructions.md           # MCP processing workflow
 ```
 
 **After Installation in Your Project:**
@@ -134,8 +144,10 @@ your-project/
 │   ├── scripts/
 │   │   └── doc-sync.sh          # Core capture script
 │   └── templates/
-│       ├── mcp-instructions.md   # MCP processing template
-│       └── local-instructions.md # Local docs processing template
+│       ├── local-architecture-prompt.md  # Local documentation system prompt
+│       ├── mcp-architecture-prompt.md    # MCP documentation system prompt
+│       ├── local-instructions.md         # Local processing workflow
+│       └── mcp-instructions.md           # MCP processing workflow
 └── .git/hooks/post-commit        # Auto-installed git hook
 ```
 
@@ -191,7 +203,7 @@ git commit -m "add PaymentService" # Auto-captured
 ### Basic Config (`doc-flow-config.json`)
 ```json
 {
-  "output_mode": "mcp",               // "mcp" or "local"
+  "output_mode": "local",             // "local", "mcp", or "both"
   "auto_capture": true,
   "detection_keywords": [
     "add", "new", "create", "implement", "feat",
@@ -206,13 +218,15 @@ git commit -m "add PaymentService" # Auto-captured
 ```
 
 ### Custom Templates
-Override default templates by setting `custom_template_path`:
+Override default architecture prompt by setting `custom_template_path`:
 ```json
 {
-  "output_mode": "mcp",
-  "custom_template_path": "my-templates/custom-mcp.md"
+  "output_mode": "local",
+  "custom_template_path": "my-templates/custom-local-prompt.md"
 }
 ```
+
+**Note**: The `custom_template_path` overrides the architecture prompt only, not the workflow instructions.
 
 ## 🔄 Workflow
 
@@ -224,17 +238,24 @@ Override default templates by setting `custom_template_path`:
 
 ## 🎯 When to Use Which Mode
 
+### Use **Local Mode** when:
+- Simple markdown documentation
+- No external knowledge systems  
+- Team uses basic docs folder structure
+- Want self-contained documentation
+- Starting with doc-flow (recommended default)
+
 ### Use **MCP Mode** when:
 - You have Claude with MCP integration
 - Using Obsidian, Notion, or knowledge systems
 - Want structured relationships and wikilinks
 - Building complex architecture documentation
 
-### Use **Local Mode** when:
-- Simple markdown documentation
-- No external knowledge systems
-- Team uses basic docs folder structure
-- Want self-contained documentation
+### Use **Both Mode** when:
+- Evaluating which approach works better
+- Want to compare workflow efficiency
+- Team is deciding between documentation approaches
+- Testing doc-flow capabilities before committing to one mode
 
 ## 🗑️ Uninstalling
 
@@ -278,4 +299,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 **Simple, Transparent, Effective Architecture Documentation**
 
-*Two modes. Zero complexity. Maximum value.*
+*Three modes. Zero complexity. Maximum value.*

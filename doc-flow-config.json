@@ -1,5 +1,5 @@
 {
-  "output_mode": "mcp",
+  "output_mode": "local",
   "auto_capture": true,
   "detection_keywords": [
     "add", "new", "create", "implement", "feat",

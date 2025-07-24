@@ -37,4 +37,4 @@ Please process this architectural update using the MCP architecture documentatio
    - Example: `git commit -m "docs: update architecture with new PaymentService"`
    - This prevents an endless loop of documentation updates
 
-**Architecture Prompt Reference:** @templates/architecture-documentation-prompt.md
+**Architecture Prompt Reference:** @templates/mcp-architecture-prompt.md
