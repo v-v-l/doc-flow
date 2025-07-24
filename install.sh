@@ -236,6 +236,60 @@ copy_required_files() {
     print_success "Required files copied to .doc-flow/"
 }
 
+# Uninstall doc-flow completely
+uninstall() {
+    echo "🗑️  Doc Flow - Uninstallation"
+    echo "================================="
+    echo ""
+    
+    print_status "Removing doc-flow from your project..."
+    
+    # Remove .doc-flow directory
+    if [ -d "$DOC_FLOW_DIR" ]; then
+        rm -rf "$DOC_FLOW_DIR"
+        print_success "Removed .doc-flow/ directory"
+    else
+        print_warning ".doc-flow/ directory not found"
+    fi
+    
+    # Remove git hook
+    if [ -f "$HOOK_FILE" ]; then
+        rm -f "$HOOK_FILE"
+        print_success "Removed git post-commit hook"
+        
+        # Restore backup if it exists
+        if [ -f "$HOOK_FILE.backup" ]; then
+            mv "$HOOK_FILE.backup" "$HOOK_FILE"
+            print_success "Restored previous git hook from backup"
+        fi
+    else
+        print_warning "Git hook not found"
+    fi
+    
+    # Remove doc-flow entries from .gitignore
+    if [ -f ".gitignore" ] && grep -q "# Doc Flow" .gitignore; then
+        # Create temp file without doc-flow entries
+        grep -v "# Doc Flow" .gitignore | grep -v "\.doc-flow/" > .gitignore.tmp
+        mv .gitignore.tmp .gitignore
+        print_success "Cleaned .gitignore"
+    fi
+    
+    # Remove doc-flow entries from .claudeignore
+    if [ -f ".claudeignore" ] && grep -q "# Doc Flow" .claudeignore; then
+        # Create temp file without doc-flow entries
+        grep -v "# Doc Flow" .claudeignore | grep -v "\.doc-flow/" > .claudeignore.tmp
+        mv .claudeignore.tmp .claudeignore
+        print_success "Cleaned .claudeignore"
+    fi
+    
+    echo ""
+    print_success "🎉 Doc Flow completely uninstalled!"
+    echo ""
+    print_status "Note: Your doc-flow-config.json is kept for future reinstalls"
+    print_status "To remove it: rm doc-flow-config.json"
+    echo ""
+}
+
 # Main installation
 main() {
     echo "🏗️  Doc Flow - Installation"
@@ -274,5 +328,9 @@ main() {
     echo ""
 }
 
-# Run main function
-main "$@"
+# Handle command line arguments
+if [ "$1" = "--uninstall" ] || [ "$1" = "uninstall" ]; then
+    uninstall
+else
+    main "$@"
+fi

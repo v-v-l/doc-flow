@@ -236,6 +236,31 @@ Override default templates by setting `custom_template_path`:
 - Team uses basic docs folder structure
 - Want self-contained documentation
 
+## 🗑️ Uninstalling
+
+To completely remove doc-flow from your project:
+
+```bash
+# Get the installer
+git clone https://github.com/v-v-l/doc-flow.git .doc-flow-temp
+cd .doc-flow-temp
+
+# Run uninstaller
+./install.sh --uninstall
+
+# Clean up
+cd ..
+rm -rf .doc-flow-temp
+```
+
+**What gets removed:**
+- ✅ `.doc-flow/` directory and all contents
+- ✅ Git post-commit hook (restores backup if exists)
+- ✅ Doc Flow entries from `.gitignore` and `.claudeignore`
+- ✅ Clean uninstall with no traces left
+
+**Note:** Your `doc-flow-config.json` is kept for easy reinstallation.
+
 ## 🤝 Contributing
 
 We welcome contributions! The system is designed to be simple and extensible.
