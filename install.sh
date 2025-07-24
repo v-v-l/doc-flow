@@ -201,14 +201,17 @@ EOF
 check_required_files() {
     print_status "Checking required files..."
     
-    if [ ! -f "scripts/doc-sync.sh" ]; then
-        print_error "Required file not found: scripts/doc-sync.sh"
+    # Get the directory where this script is located (doc-flow source)
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+    
+    if [ ! -f "$SCRIPT_DIR/scripts/doc-sync.sh" ]; then
+        print_error "Required file not found: $SCRIPT_DIR/scripts/doc-sync.sh"
         exit 1
     fi
     
     # Check templates based on config  
     OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "doc-flow-config.json" | cut -d'"' -f4)
-    TEMPLATE_FILE="templates/${OUTPUT_MODE}-instructions.md"
+    TEMPLATE_FILE="$SCRIPT_DIR/templates/${OUTPUT_MODE}-instructions.md"
     
     if [ ! -f "$TEMPLATE_FILE" ]; then
         print_error "Required template not found: $TEMPLATE_FILE"
@@ -223,15 +226,18 @@ check_required_files() {
 copy_required_files() {
     print_status "Copying required files to .doc-flow directory..."
     
+    # Get the directory where this script is located (doc-flow source)
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+    
     # Copy configuration
     cp "doc-flow-config.json" "$CONFIG_FILE"
     
     # Copy scripts
-    cp -r scripts/* "$DOC_FLOW_DIR/scripts/"
+    cp -r "$SCRIPT_DIR/scripts"/* "$DOC_FLOW_DIR/scripts/"
     chmod +x "$DOC_FLOW_DIR/scripts"/*
     
     # Copy templates
-    cp -r templates/* "$DOC_FLOW_DIR/templates/"
+    cp -r "$SCRIPT_DIR/templates"/* "$DOC_FLOW_DIR/templates/"
     
     print_success "Required files copied to .doc-flow/"
 }
