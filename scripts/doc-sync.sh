@@ -84,12 +84,18 @@ CHANGED_FILES=$(git diff --name-only HEAD~1 2>/dev/null || git diff --cached --n
 # Function to generate update content
 generate_update_content() {
     local template_file="$1"
+    local commit_msg=$(git log -1 --pretty=%B 2>/dev/null || echo "No commit message")
     cat << EOF
 
 ---
 
 ## Update: $TIMESTAMP
 **Branch:** $BRANCH | **Commit:** $COMMIT_HASH
+
+### Commit Message
+\`\`\`
+$commit_msg
+\`\`\`
 
 ### Changes Description
 $DESCRIPTION
