@@ -7,7 +7,7 @@
     "integration", "api", "database", "auth", "fix"
   ],
   "ignore_keywords": [
-    "typo", "format", "lint", "style", "comment"
+    "typo", "format", "lint", "style", "comment", "docs:"
   ],
   "custom_template_path": null
 }
