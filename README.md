@@ -1,6 +1,6 @@
 # Doc Flow - Automated Architecture Documentation
 
-**Automatically capture software architecture changes from git commits and seamlessly integrate with Knowledge AI or local documentation workflows.**
+**Automatically capture software architecture changes from git commits and seamlessly integrate with [Knowledge AI](https://knowledge-ai.app) or local documentation workflows.**
 
 Doc Flow bridges the gap between code changes and architecture documentation by detecting architectural commits and providing AI assistants with structured context for maintaining comprehensive, up-to-date documentation.
 
@@ -46,7 +46,7 @@ cat .doc-flow/pending-changes.md
 Tell Claude (or your AI assistant):
 
 ```
-"Process pending changes using MCP tools"  # For Knowledge AI users
+"Process pending changes using MCP tools"  # For [Knowledge AI](https://knowledge-ai.app) users
 # or
 "Process pending changes to local documentation"  # For local docs
 ```
@@ -68,9 +68,9 @@ Tell Claude (or your AI assistant):
 - **Version Control Native**: Designed for existing git workflows
 - **Upgrade Safe**: Automatic detection and migration of older installations
 
-## 🌟 Perfect Integration with Knowledge AI
+## 🌟 Perfect Integration with [Knowledge AI](https://knowledge-ai.app)
 
-Doc Flow is **optimized for Knowledge AI** (knowledge-ai.app) users:
+Doc Flow is **optimized for [Knowledge AI](https://knowledge-ai.app)** users:
 
 ### 🚀 **Enhanced Capabilities**
 - **MCP Integration**: Seamless connection via Claude Desktop
@@ -79,7 +79,7 @@ Doc Flow is **optimized for Knowledge AI** (knowledge-ai.app) users:
 - **Cross-Project Intelligence**: Connect architecture across multiple projects
 - **Health Monitoring**: Link integrity checking for documentation quality
 
-### 📋 **Recommended Knowledge AI Workflow**
+### 📋 **Recommended [Knowledge AI](https://knowledge-ai.app) Workflow**
 
 ```mermaid
 graph LR
@@ -93,7 +93,7 @@ graph LR
 
 1. **Developer commits** → Doc Flow automatically captures architectural changes
 2. **User requests** → "Process pending changes using MCP tools"
-3. **Claude processes** → Via MCP connection to Knowledge AI project
+3. **Claude processes** → Via MCP connection to [Knowledge AI](https://knowledge-ai.app) project
 4. **Result** → Structured architecture documentation with relationships and searchable content
 
 ## 📁 Clean Installation
@@ -121,7 +121,7 @@ your-project/
 
 ## 📖 Usage Examples
 
-### Knowledge AI Users (Recommended)
+### [Knowledge AI](https://knowledge-ai.app) Users (Recommended)
 
 ```bash
 # Commit architectural changes
@@ -129,7 +129,7 @@ git commit -m "implement PaymentService with Stripe integration"
 
 # Doc Flow automatically captures this
 # Tell Claude: "Process pending changes using MCP tools"
-# Result: Updated Knowledge AI project with relationships and graph connections
+# Result: Updated [Knowledge AI](https://knowledge-ai.app) project with relationships and graph connections
 ```
 
 ### Local Documentation
@@ -230,13 +230,13 @@ ls -la .git/hooks/post-commit
 
 ### MCP Connection Issues
 
-1. **Verify Knowledge AI setup**: Check MCP configuration in Claude Desktop
+1. **Verify [Knowledge AI](https://knowledge-ai.app) setup**: Check MCP configuration in Claude Desktop
 2. **Test API access**: Ensure project API keys are valid
-3. **Check permissions**: Verify project access in Knowledge AI dashboard
+3. **Check permissions**: Verify project access in [Knowledge AI](https://knowledge-ai.app) dashboard
 
-## 📞 Getting Started with Knowledge AI
+## 📞 Getting Started with [Knowledge AI](https://knowledge-ai.app)
 
-### New to Knowledge AI?
+### New to [Knowledge AI](https://knowledge-ai.app)?
 
 1. **Sign up** at [knowledge-ai.app](https://knowledge-ai.app)
 2. **Create a project** for your architecture documentation
@@ -244,7 +244,7 @@ ls -la .git/hooks/post-commit
 4. **Configure Claude Desktop** with MCP connection
 5. **Install Doc Flow** and start documenting automatically
 
-### Existing Knowledge AI Users?
+### Existing [Knowledge AI](https://knowledge-ai.app) Users?
 
 Doc Flow enhances your workflow by:
 - **Automating capture** of architectural decisions
@@ -267,7 +267,7 @@ Cleanly removes:
 
 ## 🎯 Ideal For
 
-- **Knowledge AI Users**: Automated architecture documentation with advanced knowledge management
+- **[Knowledge AI](https://knowledge-ai.app) Users**: Automated architecture documentation with advanced knowledge management
 - **Software Teams**: Consistent documentation standards across projects
 - **Solo Developers**: Effortless architecture documentation without manual overhead
 - **Documentation Teams**: Ensuring architecture docs evolve with code changes
@@ -277,7 +277,7 @@ Cleanly removes:
 - Git repository
 - Unix-like environment (macOS, Linux, WSL)
 - AI assistant (Claude, ChatGPT, etc.)
-- Optional: Knowledge AI account for advanced features
+- Optional: [Knowledge AI](https://knowledge-ai.app) account for advanced features
 
 ---
 
