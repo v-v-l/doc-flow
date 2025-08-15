@@ -1,209 +1,17 @@
-# Doc Flow 🏗️📝
+# Doc Flow - Automated Architecture Documentation
 
-**Simple Architecture Documentation - Two Modes, Zero Complexity**
+**Automatically capture software architecture changes from git commits and seamlessly integrate with Knowledge AI or local documentation workflows.**
 
-Automatically capture your software architecture changes and transform them into documentation. Choose between **MCP-powered knowledge systems** or **simple local markdown files**.
+Doc Flow bridges the gap between code changes and architecture documentation by detecting architectural commits and providing AI assistants with structured context for maintaining comprehensive, up-to-date documentation.
 
-## 🎯 What It Does
+## 🚀 Quick Start
 
-- **Auto-captures** architectural changes from git commits
-- **Three output modes**: MCP integration, local docs, or both for comparison  
-- **Zero complexity** - just commit code normally
-- **Transparent workflow** - config → install → documentation
+### 1. Configure Your Project
 
-## ⚡ Quick Start
+Create `doc-flow-config.json` in your project root:
 
-### Step 1: Get Doc Flow
-```bash
-# In your project directory
-git clone https://github.com/v-v-l/doc-flow.git .doc-flow-setup
-cd .doc-flow-setup
-```
-
-### Step 2: Configure Your Mode
-```bash
-# In your project root (where you want doc-flow installed)
-cd ..
-cat > doc-flow-config.json << 'EOF'
-{
-  "output_mode": "local",
-  "auto_capture": true,
-  "detection_keywords": ["add", "new", "create", "implement", "feat", "service", "controller", "component", "module", "integration", "api", "database", "auth", "fix"],
-  "ignore_keywords": ["typo", "format", "lint", "style", "comment"]
-}
-EOF
-```
-
-### Step 3: Install Doc Flow
-```bash
-# Run installer from doc-flow directory
-./.doc-flow-setup/install.sh
-
-# Clean up temporary files
-rm -rf .doc-flow-setup
-```
-
-**What the installer does:**
-1. ✅ Creates `.doc-flow/` directory in your project
-2. ✅ Copies scripts and templates to `.doc-flow/`
-3. ✅ Copies your config to `.doc-flow/config.json`
-4. ✅ Installs git hook at `.git/hooks/post-commit`
-5. ✅ Updates `.gitignore` and `.claudeignore`
-
-### Step 4: Start Using
-```bash
-# Develop normally - doc-flow captures architecture changes automatically
-git add auth-service.js
-git commit -m "add JWT authentication service"
-# ✅ Architecture docs automatically captured!
-
-# Check captured updates
-cat .doc-flow/pending-updates.md
-
-# Process updates with Claude
-# Tell Claude: "please proceed the file" to process pending-updates.md
-```
-
-## 🔧 Three Simple Modes
-
-### **Local Mode** (`"output_mode": "local"`) - *Default*
-Perfect for simple documentation workflows:
-- Updates `docs/ARCHITECTURE.md`
-- Maintains README.md sections
-- Creates markdown dependency tables
-- Works with any text editor
-
-### **MCP Mode** (`"output_mode": "mcp"`)
-Perfect for knowledge systems with MCP integration (Obsidian, Notion, etc.):
-- Creates structured notes with wikilinks  
-- Maps component relationships
-- Uses virtual folders and tags
-- Builds knowledge graphs
-
-### **Both Mode** (`"output_mode": "both"`)
-Perfect for comparing workflows and efficiency:
-- Creates two files: `pending-updates.md-local` and `pending-updates.md-mcp`
-- Same commit details, different documentation approaches
-- Lets you test which mode works better for your project
-- Ideal for evaluation and team decision-making
-
-## 🏗️ How It Works
-
-### 1. **Configuration First**
 ```json
 {
-  "output_mode": "local",       // "local", "mcp", or "both"
-  "auto_capture": true,
-  "detection_keywords": [...],  // what triggers capture
-  "ignore_keywords": [...]      // what to skip
-}
-```
-
-### 2. **Transparent Installation**
-- `install.sh` reads your config
-- Sets up git hooks accordingly
-- Changes require re-running install (transparent!)
-
-### 3. **Smart Git Hook Detection**
-Analyzes commits for architecture keywords:
-- `add`, `new`, `create`, `implement`
-- `service`, `controller`, `component`, `module`
-- `integration`, `api`, `database`
-
-### 4. **Mode-Specific Output**
-Creates documentation files based on your mode:
-- **Local Mode**: `pending-updates.md` with file-based documentation instructions
-- **MCP Mode**: `pending-updates.md` with MCP function calls and wikilink instructions  
-- **Both Mode**: `pending-updates.md-local` AND `pending-updates.md-mcp` for comparison
-
-## 📁 Clean Project Structure
-
-**Doc Flow Repository:**
-```
-doc-flow/
-├── README.md                      # This documentation
-├── LICENSE                        # MIT license
-├── doc-flow-config.json           # Example configuration
-├── install.sh                     # Installation script
-├── scripts/
-│   └── doc-sync.sh               # Core capture script
-└── templates/
-    ├── local-architecture-prompt.md  # Local documentation system prompt
-    ├── mcp-architecture-prompt.md    # MCP documentation system prompt
-    ├── local-instructions.md         # Local processing workflow
-    └── mcp-instructions.md           # MCP processing workflow
-```
-
-**After Installation in Your Project:**
-```
-your-project/
-├── doc-flow-config.json           # Your configuration (root level)
-├── .doc-flow/                     # Hidden, isolated folder
-│   ├── config.json               # Copied from your config
-│   ├── pending-updates.md        # Generated documentation queue
-│   ├── scripts/
-│   │   └── doc-sync.sh          # Core capture script
-│   └── templates/
-│       ├── local-architecture-prompt.md  # Local documentation system prompt
-│       ├── mcp-architecture-prompt.md    # MCP documentation system prompt
-│       ├── local-instructions.md         # Local processing workflow
-│       └── mcp-instructions.md           # MCP processing workflow
-└── .git/hooks/post-commit        # Auto-installed git hook
-```
-
-## 📋 Features
-
-### ✅ Automatic Capture
-- **Git Hook Integration** - Runs on every commit
-- **Smart Detection** - Only captures relevant changes
-- **Context Aware** - Includes commit info, changed files
-
-### ✅ Multiple Input Modes
-```bash
-# Automatic from git hooks
-git commit -m "add PaymentService" # Auto-captured
-
-# Manual with description
-./scripts/doc-sync.sh "Added PaymentService, depends on stripe-sdk"
-
-# Interactive mode
-./scripts/doc-sync.sh --interactive
-
-# From recent commit
-./scripts/doc-sync.sh --from-commit
-```
-
-### ✅ Transparent Configuration
-- Config changes require re-install (no mysterious behavior)
-- External templates can be customized
-- Simple two-mode design
-
-## 🎯 Examples
-
-### MCP Mode Output
-```markdown
-### Claude Processing Instructions
-1. `search("PaymentService")` to check existing docs
-2. `create_note` with tags: ["component", "service"]
-3. `add_wikilink` for bidirectional connections
-4. Place in virtual folder: `architecture/components/`
-```
-
-### Local Mode Output  
-```markdown
-### Claude Processing Instructions
-1. Read existing `/docs/ARCHITECTURE.md`
-2. Add PaymentService under "## Components" section
-3. Update dependency table
-4. Create component documentation in `/docs/components/`
-```
-
-## ⚙️ Configuration Options
-
-### Basic Config (`doc-flow-config.json`)
-```json
-{
-  "output_mode": "local",             // "local", "mcp", or "both"
   "auto_capture": true,
   "detection_keywords": [
     "add", "new", "create", "implement", "feat",
@@ -211,92 +19,266 @@ git commit -m "add PaymentService" # Auto-captured
     "integration", "api", "database", "auth", "fix"
   ],
   "ignore_keywords": [
-    "typo", "format", "lint", "style", "comment"
-  ],
-  "custom_template_path": null        // optional override
+    "typo", "format", "lint", "style", "comment", "docs:"
+  ]
 }
 ```
 
-### Custom Templates
-Override default architecture prompt by setting `custom_template_path`:
+### 2. Install Doc Flow
+
+```bash
+git clone https://github.com/your-username/doc-flow.git
+cd your-project-directory
+./path/to/doc-flow/install.sh
+```
+
+### 3. Test Installation
+
+Make an architectural commit:
+
+```bash
+git commit -m "add new UserService component"
+cat .doc-flow/pending-changes.md
+```
+
+### 4. Process with AI
+
+Tell Claude (or your AI assistant):
+
+```
+"Process pending changes using MCP tools"  # For Knowledge AI users
+# or
+"Process pending changes to local documentation"  # For local docs
+```
+
+## ✨ Features
+
+### 🎯 **Intelligent Detection**
+- **Git Hook Integration**: Automatically captures architectural changes on commit
+- **Smart Filtering**: Configurable keywords detect relevant commits while ignoring noise
+- **Zero Overhead**: Minimal installation footprint with clean project integration
+
+### 🤖 **AI-Optimized Processing**
+- **Unified Templates**: Single comprehensive template for all documentation workflows  
+- **Context-Rich Output**: Includes commit details, file changes, and architectural guidance
+- **Knowledge AI Integration**: Specialized instructions for advanced knowledge management
+
+### 🔧 **Professional Workflow**
+- **Team Friendly**: Consistent documentation patterns across team members
+- **Version Control Native**: Designed for existing git workflows
+- **Upgrade Safe**: Automatic detection and migration of older installations
+
+## 🌟 Perfect Integration with Knowledge AI
+
+Doc Flow is **optimized for Knowledge AI** (knowledge-ai.app) users:
+
+### 🚀 **Enhanced Capabilities**
+- **MCP Integration**: Seamless connection via Claude Desktop
+- **Graph Visualization**: Automatic relationship mapping in knowledge graphs
+- **AI Relationship Extraction**: Leverage advanced entity and relationship discovery  
+- **Cross-Project Intelligence**: Connect architecture across multiple projects
+- **Health Monitoring**: Link integrity checking for documentation quality
+
+### 📋 **Recommended Knowledge AI Workflow**
+
+```mermaid
+graph LR
+    A[Git Commit] --> B[Doc Flow Captures]
+    B --> C[pending-changes.md]
+    C --> D["User: 'Process using MCP tools'"]
+    D --> E[Claude + MCP]
+    E --> F[Knowledge AI API]
+    F --> G[Updated Knowledge Graph]
+```
+
+1. **Developer commits** → Doc Flow automatically captures architectural changes
+2. **User requests** → "Process pending changes using MCP tools"
+3. **Claude processes** → Via MCP connection to Knowledge AI project
+4. **Result** → Structured architecture documentation with relationships and searchable content
+
+## 📁 Clean Installation
+
+Doc Flow maintains a minimal footprint:
+
+```
+your-project/
+├── .doc-flow/
+│   ├── config.json              # Your project configuration
+│   ├── pending-changes.md       # Accumulated changes (gitignored)
+│   ├── scripts/doc-sync.sh      # Core capture script
+│   └── templates/unified-instructions.md  # Comprehensive AI template
+├── .git/hooks/post-commit       # Auto-generated git hook
+└── doc-flow-config.json         # Your configuration file
+```
+
+## 🔄 Simple Workflow
+
+1. **Code** → Make architectural changes
+2. **Commit** → Use descriptive commit messages  
+3. **Auto-Capture** → Doc Flow detects and accumulates changes
+4. **Process** → Tell your AI assistant to process pending changes
+5. **Documentation** → Get comprehensive, structured architecture docs
+
+## 📖 Usage Examples
+
+### Knowledge AI Users (Recommended)
+
+```bash
+# Commit architectural changes
+git commit -m "implement PaymentService with Stripe integration"
+
+# Doc Flow automatically captures this
+# Tell Claude: "Process pending changes using MCP tools"
+# Result: Updated Knowledge AI project with relationships and graph connections
+```
+
+### Local Documentation
+
+```bash
+# Commit changes
+git commit -m "refactor auth system to use JWT tokens"
+
+# Process with any AI assistant
+# Tell Claude: "Process pending changes to local documentation"
+# Result: Updated local markdown files
+```
+
+### Manual Processing
+
+```bash
+# Interactive mode for detailed context
+./.doc-flow/scripts/doc-sync.sh --interactive
+
+# Use specific description
+./.doc-flow/scripts/doc-sync.sh "Added microservice architecture with event sourcing"
+```
+
+## ⚙️ Configuration
+
+### Detection Keywords
+
+Customize architectural change detection:
+
 ```json
 {
-  "output_mode": "local",
-  "custom_template_path": "my-templates/custom-local-prompt.md"
+  "detection_keywords": [
+    "add", "new", "create", "implement", "feat",
+    "service", "controller", "component", "module",
+    "integration", "api", "database", "auth", "fix",
+    "refactor", "restructure", "migrate", "architecture"
+  ]
 }
 ```
 
-**Note**: The `custom_template_path` overrides the architecture prompt only, not the workflow instructions.
+### Ignore Patterns  
 
-## 🔄 Workflow
+Skip non-architectural commits:
 
-1. **Configure** → Create `doc-flow-config.json`
-2. **Install** → Run `./install.sh` (reads config, sets up hooks)
-3. **Code** → Commit normally with architecture keywords
-4. **Process** → Tell Claude to "please proceed the file" for pending-updates.md
-5. **Update Config** → Re-run `./install.sh` for changes
+```json
+{
+  "ignore_keywords": [
+    "typo", "format", "lint", "style", "comment",
+    "docs:", "chore:", "test:", "ci:", "build:"
+  ]
+}
+```
 
-## 🎯 When to Use Which Mode
+## 🔧 Advanced Features
 
-### Use **Local Mode** when:
-- Simple markdown documentation
-- No external knowledge systems  
-- Team uses basic docs folder structure
-- Want self-contained documentation
-- Starting with doc-flow (recommended default)
+### Automatic Upgrades
 
-### Use **MCP Mode** when:
-- You have Claude with MCP integration
-- Using Obsidian, Notion, or knowledge systems
-- Want structured relationships and wikilinks
-- Building complex architecture documentation
+Doc Flow automatically detects and upgrades older installations:
+- Migrates from `pending-updates.md` to `pending-changes.md`
+- Removes obsolete template files
+- Updates configuration format
+- Preserves existing pending changes
 
-### Use **Both Mode** when:
-- Evaluating which approach works better
-- Want to compare workflow efficiency
-- Team is deciding between documentation approaches
-- Testing doc-flow capabilities before committing to one mode
+### Team Standardization
+
+Share configuration across teams:
+- Commit `doc-flow-config.json` to your repository
+- Team members get consistent documentation patterns
+- Centralized keyword management
+
+### Multiple AI Assistants
+
+Works with any AI assistant:
+- **Claude**: Optimized MCP and local workflows
+- **ChatGPT**: Copy/paste pending changes content
+- **Custom AI**: Use the structured template format
+
+## 🛠️ Troubleshooting
+
+### Installation Issues
+
+```bash
+# Check git repository
+git status
+
+# Verify configuration file
+cat doc-flow-config.json
+
+# Test git hook
+ls -la .git/hooks/post-commit
+```
+
+### Not Detecting Commits
+
+1. **Check keywords**: Ensure commit messages contain detection keywords
+2. **Review ignore list**: Verify commits aren't being filtered out  
+3. **Test manually**: `./.doc-flow/scripts/doc-sync.sh --from-commit`
+
+### MCP Connection Issues
+
+1. **Verify Knowledge AI setup**: Check MCP configuration in Claude Desktop
+2. **Test API access**: Ensure project API keys are valid
+3. **Check permissions**: Verify project access in Knowledge AI dashboard
+
+## 📞 Getting Started with Knowledge AI
+
+### New to Knowledge AI?
+
+1. **Sign up** at [knowledge-ai.app](https://knowledge-ai.app)
+2. **Create a project** for your architecture documentation
+3. **Get MCP URL** from integration settings
+4. **Configure Claude Desktop** with MCP connection
+5. **Install Doc Flow** and start documenting automatically
+
+### Existing Knowledge AI Users?
+
+Doc Flow enhances your workflow by:
+- **Automating capture** of architectural decisions
+- **Providing structure** for consistent documentation
+- **Leveraging advanced features** like graph relationships and semantic search
 
 ## 🗑️ Uninstalling
 
-To completely remove doc-flow from your project:
-
 ```bash
-# Get the installer
-git clone https://github.com/v-v-l/doc-flow.git .doc-flow-temp
-cd .doc-flow-temp
-
-# Run uninstaller
-./install.sh --uninstall
-
-# Clean up
-cd ..
-rm -rf .doc-flow-temp
+./path/to/doc-flow/install.sh --uninstall
 ```
 
-**What gets removed:**
-- ✅ `.doc-flow/` directory and all contents
-- ✅ Git post-commit hook (restores backup if exists)
-- ✅ Doc Flow entries from `.gitignore` and `.claudeignore`
-- ✅ Clean uninstall with no traces left
-
-**Note:** Your `doc-flow-config.json` is kept for easy reinstallation.
-
-## 🤝 Contributing
-
-We welcome contributions! The system is designed to be simple and extensible.
-
-### Adding New Templates
-1. Create template in `templates/yourmode-instructions.md`
-2. Update config validation
-3. Test with example project
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
+Cleanly removes:
+- `.doc-flow/` directory and all contents
+- Git post-commit hook (with backup restoration)  
+- `.gitignore` and `.claudeignore` entries
+- Preserves `doc-flow-config.json` for future use
 
 ---
 
-**Simple, Transparent, Effective Architecture Documentation**
+## 🎯 Ideal For
 
-*Three modes. Zero complexity. Maximum value.*
+- **Knowledge AI Users**: Automated architecture documentation with advanced knowledge management
+- **Software Teams**: Consistent documentation standards across projects
+- **Solo Developers**: Effortless architecture documentation without manual overhead
+- **Documentation Teams**: Ensuring architecture docs evolve with code changes
+
+## 📋 Requirements
+
+- Git repository
+- Unix-like environment (macOS, Linux, WSL)
+- AI assistant (Claude, ChatGPT, etc.)
+- Optional: Knowledge AI account for advanced features
+
+---
+
+*Doc Flow - Because great architecture documentation should be automatic, not an afterthought.*

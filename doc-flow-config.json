@@ -1,5 +1,4 @@
 {
-  "output_mode": "local",
   "auto_capture": true,
   "detection_keywords": [
     "add", "new", "create", "implement", "feat",
@@ -8,6 +7,5 @@
   ],
   "ignore_keywords": [
     "typo", "format", "lint", "style", "comment", "docs:"
-  ],
-  "custom_template_path": null
+  ]
 }

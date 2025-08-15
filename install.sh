@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 # Configuration
 DOC_FLOW_DIR=".doc-flow"
 CONFIG_FILE="$DOC_FLOW_DIR/config.json"
-PENDING_FILE="$DOC_FLOW_DIR/pending-updates.md"
+PENDING_FILE="$DOC_FLOW_DIR/pending-changes.md"
 HOOK_FILE=".git/hooks/post-commit"
 
 # Function to print colored output
@@ -43,6 +43,59 @@ check_git_repo() {
     print_success "Git repository detected"
 }
 
+# Detect and handle older installations
+detect_and_upgrade_old_version() {
+    local is_upgrade=false
+    
+    print_status "Checking for existing Doc Flow installation..."
+    
+    # Check for old file patterns
+    if [ -f ".doc-flow/pending-updates.md" ]; then
+        print_warning "Found old version: pending-updates.md (will be renamed to pending-changes.md)"
+        is_upgrade=true
+    fi
+    
+    # Check for old template files
+    if [ -f ".doc-flow/templates/local-instructions.md" ] || [ -f ".doc-flow/templates/mcp-instructions.md" ]; then
+        print_warning "Found old version: separate local/mcp templates (will use unified template)"
+        is_upgrade=true
+    fi
+    
+    # Check for old config format
+    if [ -f "doc-flow-config.json" ] && grep -q '"output_mode"' "doc-flow-config.json"; then
+        print_warning "Found old config format with output_mode (will be updated)"
+        is_upgrade=true
+    fi
+    
+    if [ "$is_upgrade" = true ]; then
+        print_status "🔄 Upgrading from older version..."
+        
+        # Backup old pending file if it exists
+        if [ -f ".doc-flow/pending-updates.md" ]; then
+            mv ".doc-flow/pending-updates.md" ".doc-flow/pending-changes.md"
+            print_success "Renamed pending-updates.md → pending-changes.md"
+        fi
+        
+        # Remove old template files
+        rm -f ".doc-flow/templates/local-instructions.md"
+        rm -f ".doc-flow/templates/mcp-instructions.md"
+        rm -f ".doc-flow/templates/local-architecture-prompt.md"
+        rm -f ".doc-flow/templates/mcp-architecture-prompt.md"
+        print_success "Removed old template files"
+        
+        # Clean up .gitignore entries
+        if [ -f ".gitignore" ]; then
+            # Remove old patterns and add new one
+            sed -i.bak '/pending-updates\.md/d; /pending-changes-.*\.md/d' .gitignore 2>/dev/null || true
+            rm -f .gitignore.bak
+        fi
+        
+        print_success "Upgrade preparation complete"
+    else
+        print_success "Fresh installation detected"
+    fi
+}
+
 # Setup directory structure
 setup_directories() {
     print_status "Setting up directory structure..."
@@ -64,18 +117,20 @@ update_gitignore() {
     # Check if .gitignore exists, create if not
     touch .gitignore
     
-    # Add doc-flow entries if not already present
-    if ! grep -q "# Doc Flow" .gitignore; then
-        cat >> .gitignore << 'EOF'
+    # Remove old Doc Flow entries if they exist
+    if grep -q "# Doc Flow" .gitignore; then
+        sed -i.bak '/# Doc Flow/,/^$/d' .gitignore 2>/dev/null || true
+        rm -f .gitignore.bak
+    fi
+    
+    # Add new doc-flow entries
+    cat >> .gitignore << 'EOF'
 
 # Doc Flow - Architecture Documentation Tool
-.doc-flow/pending-updates.md
+.doc-flow/pending-changes.md
 .doc-flow/temp/
 EOF
-        print_success "Updated .gitignore"
-    else
-        print_warning ".gitignore already contains Doc Flow entries"
-    fi
+    print_success "Updated .gitignore with new patterns"
 }
 
 # Update .claudeignore to exclude doc-flow internals
@@ -109,12 +164,10 @@ install_git_hook() {
         mv "$HOOK_FILE" "$HOOK_FILE.backup"
     fi
     
-    # Read config to determine output mode and settings
-    OUTPUT_MODE="mcp"  # default
+    # Read config to determine settings
     KEYWORDS="add|new|create|implement|service|controller|component|module|integration|api"
     
     if [ -f "doc-flow-config.json" ]; then
-        OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "doc-flow-config.json" | cut -d'"' -f4)
         KEYWORDS=$(grep -o '"detection_keywords":\s*\[[^]]*\]' "doc-flow-config.json" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' | tr '\n' '|' | sed 's/|$//')
     fi
     
@@ -152,7 +205,7 @@ if echo "\$COMMIT_MSG" | grep -iE "\$KEYWORDS" > /dev/null; then
     # Use doc-sync.sh to capture the change
     ./.doc-flow/scripts/doc-sync.sh --from-commit
     
-    echo "💡 Next: Tell Claude to 'Process pending architecture updates'"
+    echo "💡 Next: Tell Claude to 'Process pending changes' (specify: using MCP tools OR to local documentation)"
     echo ""
 else
     # Silent for non-architecture commits to avoid noise
@@ -166,7 +219,7 @@ EOF
     print_success "Git hook installed"
 }
 
-# Check configuration (don't create, require user to configure first)
+# Check/update configuration 
 check_config() {
     if [ ! -f "doc-flow-config.json" ]; then
         print_error "Configuration file doc-flow-config.json not found!"
@@ -176,7 +229,6 @@ check_config() {
         echo "Example configuration:"
         cat << 'EOF'
 {
-  "output_mode": "mcp",
   "auto_capture": true,
   "detection_keywords": [
     "add", "new", "create", "implement", "feat",
@@ -184,9 +236,8 @@ check_config() {
     "integration", "api", "database", "auth", "fix"
   ],
   "ignore_keywords": [
-    "typo", "format", "lint", "style", "comment"
-  ],
-  "custom_template_path": null
+    "typo", "format", "lint", "style", "comment", "docs:"
+  ]
 }
 EOF
         echo ""
@@ -194,6 +245,15 @@ EOF
         exit 1
     else
         print_success "Configuration found: doc-flow-config.json"
+        
+        # Update config if it has old output_mode field
+        if grep -q '"output_mode"' "doc-flow-config.json"; then
+            print_status "Updating config format..."
+            # Remove output_mode line and custom_template_path line
+            sed -i.bak '/"output_mode"/d; /"custom_template_path"/d; /,$/{s/,$//}' "doc-flow-config.json" 2>/dev/null || true
+            rm -f "doc-flow-config.json.bak"
+            print_success "Updated config to new format"
+        fi
     fi
 }
 
@@ -209,29 +269,10 @@ check_required_files() {
         exit 1
     fi
     
-    # Check templates based on config  
-    OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "doc-flow-config.json" | cut -d'"' -f4)
-    
-    if [ "$OUTPUT_MODE" = "both" ]; then
-        # Both mode requires both local and mcp templates
-        if [ ! -f "$SCRIPT_DIR/templates/local-instructions.md" ]; then
-            print_error "Required template not found: $SCRIPT_DIR/templates/local-instructions.md"
-            echo "Available output modes: mcp, local, both"
-            exit 1
-        fi
-        if [ ! -f "$SCRIPT_DIR/templates/mcp-instructions.md" ]; then
-            print_error "Required template not found: $SCRIPT_DIR/templates/mcp-instructions.md"
-            echo "Available output modes: mcp, local, both"
-            exit 1
-        fi
-    else
-        # Single mode (local or mcp)
-        TEMPLATE_FILE="$SCRIPT_DIR/templates/${OUTPUT_MODE}-instructions.md"
-        if [ ! -f "$TEMPLATE_FILE" ]; then
-            print_error "Required template not found: $TEMPLATE_FILE"
-            echo "Available output modes: mcp, local, both"
-            exit 1
-        fi
+    # Check for unified template
+    if [ ! -f "$SCRIPT_DIR/templates/unified-instructions.md" ]; then
+        print_error "Required template not found: $SCRIPT_DIR/templates/unified-instructions.md"
+        exit 1
     fi
     
     print_success "All required files found"
@@ -321,6 +362,7 @@ main() {
     
     # Run installation steps
     check_git_repo
+    detect_and_upgrade_old_version
     check_config
     check_required_files
     setup_directories
@@ -330,22 +372,19 @@ main() {
     install_git_hook
     
     echo ""
-    # Get configured output mode for display
-    OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "$CONFIG_FILE" | cut -d'"' -f4)
-    
     echo "🎉 Installation Complete!"
     echo ""
     echo "📋 What's installed:"
     echo "  ✅ Git hook: .git/hooks/post-commit"
     echo "  ✅ Configuration: $CONFIG_FILE"
-    echo "  ✅ Output mode: $OUTPUT_MODE"
+    echo "  ✅ Unified template system"
     echo "  ✅ Updated: .gitignore and .claudeignore"
     echo ""
     echo "🚀 Test it:"
     echo "  git commit -m 'add new UserService component'"
-    echo "  cat .doc-flow/pending-updates.md"
+    echo "  cat .doc-flow/pending-changes.md"
     echo ""
-    echo "💡 Next: Tell Claude to 'Process pending architecture updates'"
+    echo "💡 Next: Tell Claude to 'Process pending changes' (specify: using MCP tools OR to local documentation)"
     echo ""
 }
 

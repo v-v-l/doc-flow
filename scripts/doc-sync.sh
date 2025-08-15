@@ -61,18 +61,12 @@ else
     DESCRIPTION="$1"
 fi
 
-# Read configuration
+# Simple configuration check
 CONFIG_FILE=".doc-flow/config.json"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "❌ Configuration file $CONFIG_FILE not found!"
     echo "Please run from the project root directory where doc-flow is installed."
     exit 1
-fi
-
-# Extract output mode from config (simple grep-based approach)
-OUTPUT_MODE=$(grep -o '"output_mode":[[:space:]]*"[^"]*"' "$CONFIG_FILE" | cut -d'"' -f4)
-if [ -z "$OUTPUT_MODE" ]; then
-    OUTPUT_MODE="mcp"  # default fallback
 fi
 
 # Rest of the script
@@ -81,78 +75,54 @@ COMMIT_HASH=$(git log -1 --pretty=format:"%h" 2>/dev/null || echo "no-git")
 BRANCH=$(git branch --show-current 2>/dev/null || echo "no-branch")
 CHANGED_FILES=$(git diff --name-only HEAD~1 2>/dev/null || git diff --cached --name-only 2>/dev/null || echo "No changes")
 
-# Function to generate update content
-generate_update_content() {
-    local template_file="$1"
-    local commit_msg=$(git log -1 --pretty=%B 2>/dev/null || echo "No commit message")
-    cat << EOF
+# Function to ensure file has header with instructions
+ensure_pending_file_header() {
+    local pending_file="$1"
+    local template_file="$2"
+    
+    if [ ! -f "$pending_file" ] || ! grep -q "## Pending Changes" "$pending_file"; then
+        cat << EOF > "$pending_file"
+# Pending Architecture Changes
+
+$(cat "$template_file")
 
 ---
 
-## Update: $TIMESTAMP
-**Branch:** $BRANCH | **Commit:** $COMMIT_HASH
+## Pending Changes
 
-### Commit Message
-\`\`\`
-$commit_msg
-\`\`\`
+EOF
+    fi
+}
 
-### Changes Description
-$DESCRIPTION
+# Function to generate commit entry (without instructions)
+generate_commit_entry() {
+    local commit_msg=$(git log -1 --pretty=%B 2>/dev/null | head -1)
+    cat << EOF
 
-### Files Modified
-\`\`\`
-$CHANGED_FILES
-\`\`\`
-
-$(cat "$template_file")
+### $TIMESTAMP - $COMMIT_HASH ($BRANCH)
+**Description:** $DESCRIPTION
+**Files:** $(echo "$CHANGED_FILES" | wc -l) files - $(echo "$CHANGED_FILES" | head -3 | tr '\n' ', ' | sed 's/, $//')$([ $(echo "$CHANGED_FILES" | wc -l) -gt 3 ] && echo "...")
 
 EOF
 }
 
-# Handle different output modes
-if [ "$OUTPUT_MODE" = "both" ]; then
-    # Generate both local and mcp files
-    LOCAL_TEMPLATE=".doc-flow/templates/local-instructions.md"
-    MCP_TEMPLATE=".doc-flow/templates/mcp-instructions.md"
-    
-    if [ ! -f "$LOCAL_TEMPLATE" ]; then
-        echo "❌ Template file $LOCAL_TEMPLATE not found!"
-        exit 1
-    fi
-    
-    if [ ! -f "$MCP_TEMPLATE" ]; then
-        echo "❌ Template file $MCP_TEMPLATE not found!"
-        exit 1
-    fi
-    
-    # Generate local file
-    generate_update_content "$LOCAL_TEMPLATE" >> .doc-flow/pending-changes-local.md
-    
-    # Generate mcp file  
-    generate_update_content "$MCP_TEMPLATE" >> .doc-flow/pending-changes-mcp.md
-    
-    echo "✅ Architecture updates queued successfully!"
-    echo "📝 Added to: .doc-flow/pending-changes-local.md"
-    echo "📝 Added to: .doc-flow/pending-changes-mcp.md"
-    echo "🔧 Output mode: both (from $CONFIG_FILE)"
-    
-else
-    # Single mode (local or mcp)
-    TEMPLATE_FILE=".doc-flow/templates/${OUTPUT_MODE}-instructions.md"
-    if [ ! -f "$TEMPLATE_FILE" ]; then
-        echo "❌ Template file $TEMPLATE_FILE not found!"
-        echo "Available templates should be: .doc-flow/templates/mcp-instructions.md, .doc-flow/templates/local-instructions.md"
-        exit 1
-    fi
-    
-    # Generate single file
-    generate_update_content "$TEMPLATE_FILE" >> .doc-flow/pending-updates.md
-    
-    echo "✅ Architecture update queued successfully!"
-    echo "📝 Added to: .doc-flow/pending-updates.md"
-    echo "🔧 Output mode: $OUTPUT_MODE (from $CONFIG_FILE)"
+# Simple single file approach
+UNIFIED_TEMPLATE="templates/unified-instructions.md"
+PENDING_FILE=".doc-flow/pending-changes.md"
+
+if [ ! -f "$UNIFIED_TEMPLATE" ]; then
+    echo "❌ Unified template file $UNIFIED_TEMPLATE not found!"
+    exit 1
 fi
+
+# Ensure file has header with unified instructions
+ensure_pending_file_header "$PENDING_FILE" "$UNIFIED_TEMPLATE"
+
+# Append only commit entry
+generate_commit_entry >> "$PENDING_FILE"
+
+echo "✅ Architecture update queued successfully!"
+echo "📝 Added to: $PENDING_FILE"
 
 echo ""
 echo "Summary:"
@@ -160,4 +130,4 @@ echo "  - Description: $DESCRIPTION"
 echo "  - Files: $(echo "$CHANGED_FILES" | wc -l) files changed"
 echo "  - Commit: $COMMIT_HASH on $BRANCH"
 echo ""
-echo "Next: Tell Claude to 'Process pending architecture updates'"
+echo "Next: Tell Claude to 'Process pending changes' (specify: using MCP tools OR to local documentation)"
