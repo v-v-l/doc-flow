@@ -194,10 +194,17 @@ How other modules interact with this one.
 
 ## 🧹 CLEANUP INSTRUCTIONS
 
-After processing all pending changes:
-1. **Clean up this file** - Remove processed change entries to keep it manageable
-2. **Commit documentation** - Use prefix `docs:` to avoid triggering architecture hooks
-3. **Example commit:** `git commit -m "docs: update architecture with PaymentService and UserController changes"`
+**IMPORTANT**: After processing each change entry:
+1. **DELETE the processed entry** from this file completely (don't mark as done - remove entirely)
+2. **Keep only unprocessed entries** - this file should only contain pending work
+3. **Commit documentation changes** with `docs:` prefix to avoid triggering architecture hooks
+4. **Example commit:** `git commit -m "docs: add UserService and PaymentController to architecture"`
+
+**Why delete entries?**
+- Pending changes are temporary staging - once processed, they're no longer "pending"
+- Keeps the file clean and actionable
+- Real documentation goes to Knowledge AI/local files, not this staging file
+- Clear workflow: Git Commit → Pending → Process → Delete → Documentation Complete
 
 ---
 

@@ -49,6 +49,13 @@ detect_and_upgrade_old_version() {
     
     print_status "Checking for existing Doc Flow installation..."
     
+    # Check for very old .tools/doc-flow installation
+    if [ -d ".tools/doc-flow" ]; then
+        print_warning "Found very old installation: .tools/doc-flow (will be removed)"
+        rm -rf ".tools/doc-flow"
+        is_upgrade=true
+    fi
+    
     # Check for old file patterns
     if [ -f ".doc-flow/pending-updates.md" ]; then
         print_warning "Found old version: pending-updates.md (will be renamed to pending-changes.md)"
@@ -188,17 +195,25 @@ if [ ! -f ".doc-flow/scripts/doc-sync.sh" ]; then
     exit 0
 fi
 
-# Load detection keywords from config
-KEYWORDS=\$(grep -o '"detection_keywords":\s*\[[^]]*\]' ".doc-flow/config.json" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' | tr '\n' '|' | sed 's/|\$//')
-if [ -z "\$KEYWORDS" ]; then
-    KEYWORDS="$KEYWORDS"
+# Load detection and ignore keywords from config  
+DETECTION_KEYWORDS=\$(grep -A 20 '"detection_keywords"' ".doc-flow/config.json" | grep -o '"[^"]*"' | sed 's/"//g' | tr '\n' '|' | sed 's/|\$//')
+IGNORE_KEYWORDS=\$(grep -A 20 '"ignore_keywords"' ".doc-flow/config.json" | grep -o '"[^"]*"' | sed 's/"//g' | tr '\n' '|' | sed 's/|\$//')
+
+if [ -z "\$DETECTION_KEYWORDS" ]; then
+    DETECTION_KEYWORDS="$KEYWORDS"
 fi
 
 # Get commit info
 COMMIT_MSG=\$(git log -1 --pretty=%B)
 
+# Check if commit should be ignored first
+if [ ! -z "\$IGNORE_KEYWORDS" ] && echo "\$COMMIT_MSG" | grep -iE "\$IGNORE_KEYWORDS" > /dev/null; then
+    # Silent exit for ignored commits
+    exit 0
+fi
+
 # Check if this looks like an architectural change
-if echo "\$COMMIT_MSG" | grep -iE "\$KEYWORDS" > /dev/null; then
+if echo "\$COMMIT_MSG" | grep -iE "\$DETECTION_KEYWORDS" > /dev/null; then
     echo ""
     echo "🏗️  Architecture change detected..."
     
