@@ -27,9 +27,9 @@ Create `doc-flow-config.json` in your project root:
 ### 2. Install Doc Flow
 
 ```bash
-git clone https://github.com/your-username/doc-flow.git
+git clone https://github.com/v-v-l/doc-flow.git
 cd your-project-directory
-./path/to/doc-flow/install.sh
+../doc-flow/install.sh
 ```
 
 ### 3. Test Installation
@@ -254,7 +254,7 @@ Doc Flow enhances your workflow by:
 ## 🗑️ Uninstalling
 
 ```bash
-./path/to/doc-flow/install.sh --uninstall
+../doc-flow/install.sh --uninstall
 ```
 
 Cleanly removes:
